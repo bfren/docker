@@ -2,7 +2,7 @@
 
 The following Docker images make up the bcg|design ecosystem:
 
-Image | Version | Build | Docker | Versions
+Image | Release | Build | Docker | Versions
 :--- | :--- | :--- | :--- | :---
 [Alpine S6](https://github.com/bencgreen/docker-alpine-s6) | 1.0.3 | ![build](https://github.com/bencgreen/docker-alpine-s6/workflows/build/badge.svg) | [Image](https://hub.docker.com/r/bcgdesign/alpine-s6) | Alpine 3.12.1 - S6 2.1.0.2
 [MariaDB](https://github.com/bencgreen/docker-mariadb) | 10.5.6 | ![build](https://github.com/bencgreen/docker-mariadb/workflows/build/badge.svg) | [Image](https://hub.docker.com/r/bcgdesign/mariadb) | MariaDB 10.5.6
