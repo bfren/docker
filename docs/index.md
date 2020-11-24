@@ -30,7 +30,7 @@ Here is where Nginx starts to get interesting.  [PHP](https://php.net) runs in F
 
 The most advanced of the images so far, this is a fully-automated (yet also fully customisable) reverse proxy image.  Simply define your primary domain names and aliases in two bash arrays, and the image does the rest: creating all the Nginx configuration files necessary to serve files over HTTPS, and then using [getssl](https://github.com/srvrco/getssl) to request certificates from [Lets Encrypt](https://letsencrypt.org).
 
-### [Redis](https://github.com/bencgreen/docker-redis)
+### [Redis](https://github.com/bencgreen/docker-redis)
 
 [Redis](https://github.com/docker-library/redis) is a fast caching application.  This uses the latest version, on the latest Alpine, with a custom healthcheck baked in to let you know whether or not it's healthy.
 
