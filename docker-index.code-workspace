@@ -5,6 +5,42 @@
 		},
 		{
 			"path": "../index.wiki"
+		},
+		{
+			"path": "../alpine-s6"
+		},
+		{
+			"path": "../apache-php"
+		},
+		{
+			"path": "../aspnet"
+		},
+		{
+			"path": "../clamav"
+		},
+		{
+			"path": "../ftps"
+		},
+		{
+			"path": "../mariadb"
+		},
+		{
+			"path": "../nginx"
+		},
+		{
+			"path": "../nginx-php"
+		},
+		{
+			"path": "../nginx-proxy"
+		},
+		{
+			"path": "../nginx-webdav"
+		},
+		{
+			"path": "../redis"
+		},
+		{
+			"path": "../wordpress"
 		}
 	],
 	"settings": {}
