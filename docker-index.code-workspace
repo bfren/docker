@@ -1,46 +1,64 @@
 {
 	"folders": [
 		{
+			"name": "index",
 			"path": "."
 		},
 		{
-			"path": "../index.wiki"
+			"name": "index.wiki",
+			"path": "..\\index.wiki"
 		},
 		{
-			"path": "../alpine-s6"
+			"name": "alpine-s6",
+			"path": "..\\alpine-s6"
 		},
 		{
-			"path": "../apache-php"
+			"name": "apache-php",
+			"path": "..\\apache-php"
 		},
 		{
-			"path": "../aspnet"
+			"name": "aspnet",
+			"path": "..\\aspnet"
 		},
 		{
-			"path": "../clamav"
+			"name": "clamav",
+			"path": "..\\clamav"
 		},
 		{
-			"path": "../ftps"
+			"name": "freescout",
+			"path": "..\\freescout"
 		},
 		{
-			"path": "../mariadb"
+			"name": "ftps",
+			"path": "..\\ftps"
 		},
 		{
-			"path": "../nginx"
+			"name": "mariadb",
+			"path": "..\\mariadb"
 		},
 		{
-			"path": "../nginx-php"
+			"name": "nginx",
+			"path": "..\\nginx"
 		},
 		{
-			"path": "../nginx-proxy"
+			"name": "nginx-php",
+			"path": "..\\nginx-php"
 		},
 		{
-			"path": "../nginx-webdav"
+			"name": "nginx-proxy",
+			"path": "..\\nginx-proxy"
 		},
 		{
-			"path": "../redis"
+			"name": "nginx-webdav",
+			"path": "..\\nginx-webdav"
 		},
 		{
-			"path": "../wordpress"
+			"name": "redis",
+			"path": "..\\redis"
+		},
+		{
+			"name": "wordpress",
+			"path": "..\\wordpress"
 		}
 	],
 	"settings": {}
