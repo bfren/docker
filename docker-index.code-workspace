@@ -6,59 +6,59 @@
 		},
 		{
 			"name": "index.wiki",
-			"path": "..\\index.wiki"
+			"path": "../index.wiki"
 		},
 		{
 			"name": "alpine-s6",
-			"path": "..\\alpine-s6"
+			"path": "../alpine-s6"
 		},
 		{
 			"name": "apache-php",
-			"path": "..\\apache-php"
+			"path": "../apache-php"
 		},
 		{
 			"name": "aspnet",
-			"path": "..\\aspnet"
+			"path": "../aspnet"
 		},
 		{
 			"name": "clamav",
-			"path": "..\\clamav"
+			"path": "../clamav"
 		},
 		{
 			"name": "freescout",
-			"path": "..\\freescout"
+			"path": "../freescout"
 		},
 		{
 			"name": "ftps",
-			"path": "..\\ftps"
+			"path": "../ftps"
 		},
 		{
 			"name": "mariadb",
-			"path": "..\\mariadb"
+			"path": "../mariadb"
 		},
 		{
 			"name": "nginx",
-			"path": "..\\nginx"
+			"path": "../nginx"
 		},
 		{
 			"name": "nginx-php",
-			"path": "..\\nginx-php"
+			"path": "../nginx-php"
 		},
 		{
 			"name": "nginx-proxy",
-			"path": "..\\nginx-proxy"
+			"path": "../nginx-proxy"
 		},
 		{
 			"name": "nginx-webdav",
-			"path": "..\\nginx-webdav"
+			"path": "../nginx-webdav"
 		},
 		{
 			"name": "redis",
-			"path": "..\\redis"
+			"path": "../redis"
 		},
 		{
 			"name": "wordpress",
-			"path": "..\\wordpress"
+			"path": "../wordpress"
 		}
 	],
 	"settings": {}
