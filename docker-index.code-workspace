@@ -29,6 +29,10 @@
 			"path": "../freescout"
 		},
 		{
+			"name": "freshrss",
+			"path": "../freshrss"
+		},
+		{
 			"name": "ftps",
 			"path": "../ftps"
 		},
