@@ -11,7 +11,7 @@ jobs:
         name: Read Readme
         uses: bfren/action-read-file@v1.0.0
         with:
-          path: ./README.md
+          file: ./README.md
         id: readme
       -
         name: Echo Readme
