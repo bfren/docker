@@ -1,0 +1,18 @@
+on: [workflow_dispatch]
+
+jobs:
+  read-file:
+    runs-on: ubuntu-latest
+    steps:
+      -
+        name: Checkout code
+        uses: actions/checkout@v2
+      -
+        name: Read Readme
+        uses: bfren/action-read-file@v1
+        with:
+          path: ./README.md
+        id: readme
+      -
+        name: Echo Readme
+        run: echo "${{ steps.readme.outputs.contents }}"
