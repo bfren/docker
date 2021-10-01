@@ -25,6 +25,10 @@
 			"path": "../clamav"
 		},
 		{
+			"name": "firefly",
+			"path": "../firefly"
+		},
+		{
 			"name": "freescout",
 			"path": "../freescout"
 		},
