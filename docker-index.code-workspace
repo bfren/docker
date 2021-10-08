@@ -73,5 +73,7 @@
 			"path": "../wordpress"
 		}
 	],
-	"settings": {}
+	"settings": {
+		"files.trimTrailingWhitespace": true
+	}
 }
