@@ -61,6 +61,10 @@
 			"path": "../nginx-webdav"
 		},
 		{
+			"name": "postgresql",
+			"path": "../postgresql"
+		},
+		{
 			"name": "redis",
 			"path": "../redis"
 		},
