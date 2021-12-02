@@ -73,10 +73,6 @@
 			"path": "../relay"
 		},
 		{
-			"name": "rust",
-			"path": "../rust"
-		},
-		{
 			"name": "freescout",
 			"path": "../freescout"
 		},
