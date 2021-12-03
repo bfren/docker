@@ -4,6 +4,7 @@
 
 - [Base Images](#base-images)
 - [Applications](#applications)
+- [Utilities](#utilities)
 
 For documentation please see the [book](https://docs.bfren.dev/docker/) (work in progress!).
 
