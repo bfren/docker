@@ -29,10 +29,6 @@
 			"path": "../clamav"
 		},
 		{
-			"name": "firefly",
-			"path": "../firefly"
-		},
-		{
 			"name": "ftps",
 			"path": "../ftps"
 		},
@@ -71,6 +67,10 @@
 		{
 			"name": "relay",
 			"path": "../relay"
+		},
+		{
+			"name": "firefly",
+			"path": "../firefly"
 		},
 		{
 			"name": "freescout",
