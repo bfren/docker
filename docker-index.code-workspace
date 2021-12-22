@@ -17,6 +17,10 @@
 			"path": "../alpine-s6"
 		},
 		{
+			"name": "apache",
+			"path": "../apache"
+		},
+		{
 			"name": "apache-php",
 			"path": "../apache-php"
 		},
