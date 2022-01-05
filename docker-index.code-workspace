@@ -94,7 +94,6 @@
 		}
 	],
 	"settings": {
-		"files.insertFinalNewline": true,
 		"files.trimTrailingWhitespace": true
 	}
 }
