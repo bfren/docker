@@ -5,8 +5,8 @@
 			"path": "."
 		},
 		{
-			"name": "index.wiki",
-			"path": "../index.wiki"
+			"name": "book",
+			"path": "../book"
 		},
 		{
 			"name": "alpine",
