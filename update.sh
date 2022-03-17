@@ -4,6 +4,8 @@ cd ..
 
 for DIR in `ls`; do
 
+  [[ ! -d ${DIR} ]] && continue
+
   echo "${DIR}"
   cd ${DIR}
 
