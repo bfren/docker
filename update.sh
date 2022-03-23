@@ -23,6 +23,9 @@ for DIR in `ls`; do
   NOT_MERGED=`git branch --no-merged`
   [[ -n "${NOT_MERGED}" ]] && git branch -D ${NOT_MERGED}
 
+  echo "${DIR} .. gc"
+  git gc
+
   cd ..
 
 done
