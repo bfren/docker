@@ -73,14 +73,6 @@
 			"path": "../redis"
 		},
 		{
-			"name": "relay",
-			"path": "../relay"
-		},
-		{
-			"name": "firefly",
-			"path": "../firefly"
-		},
-		{
 			"name": "freescout",
 			"path": "../freescout"
 		},
