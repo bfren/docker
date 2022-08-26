@@ -17,6 +17,10 @@
 			"path": "../alpine-s6"
 		},
 		{
+			"name": "debian",
+			"path": "../debian"
+		},
+		{
 			"name": "apache",
 			"path": "../apache"
 		},
@@ -31,6 +35,10 @@
 		{
 			"name": "clamav",
 			"path": "../clamav"
+		},
+		{
+			"name": "drone",
+			"path": "../drone"
 		},
 		{
 			"name": "ftps",
