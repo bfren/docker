@@ -21,6 +21,10 @@
 			"path": "../debian"
 		},
 		{
+			"name": "debian-s6",
+			"path": "../debian-s6"
+		},
+		{
 			"name": "apache",
 			"path": "../apache"
 		},
