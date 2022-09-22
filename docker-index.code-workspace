@@ -93,6 +93,10 @@
 			"path": "../freshrss"
 		},
 		{
+			"name": "send",
+			"path": "../send"
+		},
+		{
 			"name": "wordpress",
 			"path": "../wordpress"
 		},
