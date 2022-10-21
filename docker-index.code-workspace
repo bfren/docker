@@ -85,6 +85,10 @@
 			"path": "../redis"
 		},
 		{
+			"name": "samba",
+			"path": "../samba"
+		},
+		{
 			"name": "freescout",
 			"path": "../freescout"
 		},
@@ -106,6 +110,7 @@
 		}
 	],
 	"settings": {
-		"files.trimTrailingWhitespace": true
+		"files.trimTrailingWhitespace": true,
+		"files.eol": "auto"
 	}
 }
