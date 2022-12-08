@@ -49,6 +49,14 @@
 			"path": "../ftps"
 		},
 		{
+			"name": "freescout",
+			"path": "../freescout"
+		},
+		{
+			"name": "freshrss",
+			"path": "../freshrss"
+		},
+		{
 			"name": "mariadb",
 			"path": "../mariadb"
 		},
@@ -73,6 +81,10 @@
 			"path": "../node"
 		},
 		{
+			"name": "ocis",
+			"path": "../ocis"
+		},
+		{
 			"name": "php",
 			"path": "../php"
 		},
@@ -87,18 +99,6 @@
 		{
 			"name": "samba",
 			"path": "../samba"
-		},
-		{
-			"name": "freescout",
-			"path": "../freescout"
-		},
-		{
-			"name": "freshrss",
-			"path": "../freshrss"
-		},
-		{
-			"name": "ocis",
-			"path": "../ocis"
 		},
 		{
 			"name": "send",
