@@ -97,6 +97,10 @@
 			"path": "../freshrss"
 		},
 		{
+			"name": "ocis",
+			"path": "../ocis"
+		},
+		{
 			"name": "send",
 			"path": "../send"
 		},
