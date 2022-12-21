@@ -37,10 +37,6 @@
 			"path": "../aspnet"
 		},
 		{
-			"name": "backup",
-			"path": "../backup"
-		},
-		{
 			"name": "clamav",
 			"path": "../clamav"
 		},
@@ -107,6 +103,10 @@
 		{
 			"name": "wordpress",
 			"path": "../wordpress"
+		},
+		{
+			"name": "backup",
+			"path": "../backup"
 		},
 		{
 			"name": "postgresql-upgrade",
