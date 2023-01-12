@@ -5,6 +5,8 @@
 - [Base Images](#base-images)
 - [Applications](#applications)
 - [Utilities](#utilities)
+- [Licence](#licence)
+- [Copyright](#copyright)
 
 For documentation please see the [book](https://docs.bfren.dev/docker/) (work in progress!).
 
@@ -48,3 +50,11 @@ For documentation please see the [book](https://docs.bfren.dev/docker/) (work in
 |---------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | [**Backup**](https://github.com/bfren/docker-backup)                  | ![GitHub release (latest by date)](https://img.shields.io/github/v/release/bfren/docker-backup?label=version)<br/>![GitHub Release Date](https://img.shields.io/github/release-date/bfren/docker-backup?label=date)               | Base: [Alpine S6](https://github.com/bfren/docker-alpine-s6)<br/>[Duplicity](https://duplicity.gitlab.io/) 1.0.1 and [rclone](https://rclone.org/) 1.60.1                                                             | [![Docker Pulls](https://img.shields.io/endpoint?url=https%3A%2F%2Fbfren.dev%2Fdocker%2Fpulls%2Fbackup)](https://hub.docker.com/r/bfren/backup)<br/>[![Docker Image Size](https://img.shields.io/endpoint?url=https%3A%2F%2Fbfren.dev%2Fdocker%2Fsize%2Fbackup)](https://hub.docker.com/r/bfren/backup)                           |
 | [**PostgreSQL Upgrade**](https://github.com/bfren/docker-pg-upgrade)  | ![GitHub release (latest by date)](https://img.shields.io/github/v/release/bfren/docker-pg-upgrade?label=version)<br/>![GitHub Release Date](https://img.shields.io/github/release-date/bfren/docker-pg-upgrade?label=date)       | Base: [Alpine](https://github.com/bfren/docker-alpine)                                                                                                                                                                | [![Docker Pulls](https://img.shields.io/endpoint?url=https%3A%2F%2Fbfren.dev%2Fdocker%2Fpulls%2Fpg-upgrade)](https://hub.docker.com/r/bfren/pg-upgrade)<br/>[![Docker Image Size](https://img.shields.io/endpoint?url=https%3A%2F%2Fbfren.dev%2Fdocker%2Fsize%2Fpg-upgrade)](https://hub.docker.com/r/bfren/pg-upgrade)           |
+
+## Licence
+
+> [MIT](https://mit.bfren.dev/2021)
+
+## Copyright
+
+> Copyright (c) 2021-2023 [bfren](https://bfren.dev) (unless otherwise stated)
