@@ -1,4 +1,4 @@
-name: Remove old container packages
+name: Remove out of date container packages
 
 on:
   schedule:
@@ -7,10 +7,37 @@ on:
 
 jobs:
   delete-package-versions:
+    runs-on: ubuntu-latest
+    continue-on-error: true
     strategy:
       matrix:
-        package: [ "alpine" ]
-    runs-on: ubuntu-latest
+        package:
+          - "alpine"
+          - "alpine-s6"
+          - "debian"
+          - "debian-s6"
+          - "apache"
+          - "apache-php"
+          - "aspnet"
+          - "clamav"
+          - "ftps"
+          - "freescout"
+          - "freshrss"
+          - "mariadb"
+          - "nginx"
+          - "nginx-php"
+          - "nginx-proxy"
+          - "nginx-webdav"
+          - "node"
+          - "ocis"
+          - "php"
+          - "postgresql"
+          - "redis"
+          - "samba"
+          - "send"
+          - "wordpress"
+          - "backup"
+          - "pg-upgrade"
     steps:
       - uses: actions/delete-package-versions@v4
         with:
