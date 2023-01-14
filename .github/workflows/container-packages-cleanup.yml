@@ -49,19 +49,19 @@ jobs:
           package-type: "container"
           min-versions-to-keep: 100
           token: ${{ secrets.PAT_MANAGE_PACKAGES }}
-  delete-old-packages:
-    runs-on: ubuntu-latest
-    continue-on-error: true
-    strategy:
-      max-parallel: 4
-      matrix:
-        package:
-          - "dnscrypt-proxy"
-          - "zabbix"
-    steps:
-      - uses: actions/delete-package-versions@v4
-        with:
-          package-name: ${{ matrix.package }}
-          package-type: "container"
-          min-versions-to-keep: 0
-          token: ${{ secrets.PAT_MANAGE_PACKAGES }}
+#  delete-old-packages:
+#    runs-on: ubuntu-latest
+#    continue-on-error: true
+#    strategy:
+#      max-parallel: 4
+#      matrix:
+#        package:
+#          - "dnscrypt-proxy"
+#          - "zabbix"
+#    steps:
+#      - uses: actions/delete-package-versions@v4
+#        with:
+#          package-name: ${{ matrix.package }}
+#          package-type: "container"
+#          min-versions-to-keep: 0
+#          token: ${{ secrets.PAT_MANAGE_PACKAGES }}
