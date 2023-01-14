@@ -1,4 +1,4 @@
-name: Remove old NuGet packages
+name: Remove out of date NuGet packages
 
 on:
   schedule:
@@ -8,13 +8,103 @@ on:
 jobs:
   delete-package-versions:
     strategy:
+      max-parallel: 4
       matrix:
-        package: [ "jeebs" ]
-    runs-on: ubuntu-latest
+        package:
+          - "Jeebs"
+          - "Jeebs.Apps"
+          - "Jeebs.Apps.Web"
+          - "Jeebs.Auth.Data"
+          - "Jeebs.Auth.Data.Clients.MySql"
+          - "Jeebs.Auth.Data.Clients.PostgreSql"
+          - "Jeebs.Auth.Jwt"
+          - "Jeebs.Auth.Totp"
+          - "Jeebs.Calendar"
+          - "Jeebs.Config"
+          - "Jeebs.Cqrs"
+          - "Jeebs.Cryptography"
+          - "Jeebs.Data"
+          - "Jeebs.Data.Clients.MySql"
+          - "Jeebs.Data.Clients.PostgreSql"
+          - "Jeebs.Data.Clients.SqlServer"
+          - "Jeebs.Data.Query"
+          - "Jeebs.Data.Testing"
+          - "Jeebs.Logging.Serilog"
+          - "Jeebs.Logging.Serilog.MySql"
+          - "Jeebs.Logging.Serilog.PostgreSql"
+          - "Jeebs.Mvc"
+          - "Jeebs.Mvc.Auth"
+          - "Jeebs.Mvc.Razor"
+          - "Jeebs.Services"
+          - "Jeebs.Services.Drawing"
+          - "Jeebs.Services.Drivers.Drawing.Skia"
+          - "Jeebs.Services.Drivers.Webhook.Seq"
+          - "Jeebs.Services.Drivers.Webhook.Slack"
+          - "Jeebs.Services.Webhook"
+          - "Jeebs.WordPress"
+          - "MaybeF"
+          - "MaybeF.Caching"
+          - "MaybeF.Testing"
+          - "Merlin"
+          - "Rnd"
+          - "StrongId"
+          - "StrongId.Dapper"
+          - "StrongId.Mvc"
+          - "StrongId.Newtonsoft.Json"
+          - "StrongId.Testing"
     steps:
       - uses: actions/delete-package-versions@v4
         with:
           package-name: ${{ matrix.package }}
           package-type: "nuget"
           min-versions-to-keep: 10
+          token: ${{ secrets.PAT_MANAGE_PACKAGES }}
+  delete-old-packages:
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    strategy:
+      max-parallel: 4
+      matrix:
+        package:
+          - "Jeebs.Abstractions"
+          - "Jeebs.Apps.ConsoleApps"
+          - "Jeebs.Apps.WebApps"
+          - "Jeebs.Auth.Abstractions"
+          - "Jeebs.Auth.Data.Entities"
+          - "Jeebs.Cqrs.Abstractions"
+          - "Jeebs.Data.Abstractions"
+          - "Jeebs.Data.All"
+          - "Jeebs.Data.Apps"
+          - "Jeebs.Data.Cryptography"
+          - "Jeebs.Data.Mapping"
+          - "Jeebs.Data.Querying"
+          - "Jeebs.Data.Types"
+          - "Jeebs.Maybe"
+          - "Jeebs.Maybe.Testing"
+          - "Jeebs.Mvc.Auth.Razor"
+          - "Jeebs.Mvc.Calendar"
+          - "Jeebs.Mvc.Data"
+          - "Jeebs.Option"
+          - "Jeebs.Option.Abstractions"
+          - "Jeebs.Option.Testing"
+          - "Jeebs.Random"
+          - "Jeebs.Result"
+          - "Jeebs.Result.Chain"
+          - "Jeebs.Services.Abstractions"
+          - "Jeebs.Services.Drivers.Drawing.Common"
+          - "Jeebs.Services.Drivers.Twitter.Tweetinvi"
+          - "Jeebs.Services.Drivers.Webhook.RocketChat"
+          - "Jeebs.Services.Twitter"
+          - "Jeebs.Types"
+          - "Jeebs.WordPress.Abstractions"
+          - "Jeebs.WordPress.Data"
+          - "Jeebs.WordPress.Data.Types"
+          - "Jeebs.WordPress.Entities"
+          - "Jeebs.WordPress.Old"
+    steps:
+      - uses: actions/delete-package-versions@v4
+        with:
+          package-name: ${{ matrix.package }}
+          package-type: "nuget"
+          min-versions-to-keep: 0
           token: ${{ secrets.PAT_MANAGE_PACKAGES }}
