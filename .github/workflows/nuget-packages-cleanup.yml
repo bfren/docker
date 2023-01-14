@@ -7,6 +7,8 @@ on:
 
 jobs:
   delete-package-versions:
+    runs-on: ubuntu-latest
+    continue-on-error: true
     strategy:
       max-parallel: 4
       matrix:
