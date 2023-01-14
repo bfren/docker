@@ -1,0 +1,20 @@
+name: Remove old package versions
+
+on:
+  schedule:
+    - cron:  "0 8 * * *"
+  workflow_dispatch:
+
+jobs:
+  remove-package-versions:
+    strategy:
+      matrix:
+        repo: [ "alpine" ]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/delete-package-versions@v4
+        with:
+          package-name: ${{ matrix.repo }}
+          package-type: "container"
+          min-versions-to-keep: 100
+          token: ${{ secrets.PAT_MANAGE_PACKAGES }}
