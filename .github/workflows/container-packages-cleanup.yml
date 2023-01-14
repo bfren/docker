@@ -15,6 +15,6 @@ jobs:
       - uses: actions/delete-package-versions@v4
         with:
           package-name: ${{ matrix.package }}
-          package-type: "nuget"
+          package-type: "container"
           min-versions-to-keep: 100
           token: ${{ secrets.PAT_MANAGE_PACKAGES }}
