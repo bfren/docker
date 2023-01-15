@@ -53,8 +53,8 @@ For documentation please see the [book](https://docs.bfren.dev/docker/) (work in
 
 ## Licence
 
-> [MIT](https://mit.bfren.dev/2021)
+> [MIT](https://mit.bfren.dev/2020)
 
 ## Copyright
 
-> Copyright (c) 2021-2023 [bfren](https://bfren.dev) (unless otherwise stated)
+> Copyright (c) 2020-2023 [bfren](https://bfren.dev) (unless otherwise stated)
