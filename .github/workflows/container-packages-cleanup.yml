@@ -20,7 +20,6 @@ jobs:
           - "apache"
           - "apache-php"
           - "aspnet"
-          - "busybox"
           - "ccf"
           - "clamav"
           - "ftps"
