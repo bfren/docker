@@ -9,9 +9,6 @@ for DIR in `ls`; do
   echo "${DIR}"
   cd ${DIR}
 
-  echo "${DIR} .. pull"
-  git pull
-
   echo "${DIR} .. prune"
   git remote prune origin
 
@@ -25,6 +22,9 @@ for DIR in `ls`; do
 
   echo "${DIR} .. gc"
   git gc
+
+  echo "${DIR} .. pull"
+  git reset --hard && git pull
 
   cd ..
 
