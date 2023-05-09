@@ -53,6 +53,10 @@
 			"path": "../freshrss"
 		},
 		{
+			"name": "lighttpd",
+			"path": "../lighttpd"
+		},
+		{
 			"name": "mariadb",
 			"path": "../mariadb"
 		},
