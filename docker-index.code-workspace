@@ -105,6 +105,14 @@
 			"path": "../send"
 		},
 		{
+			"name": "unbound",
+			"path": "../unbound"
+		},
+		{
+			"name": "wireguard",
+			"path": "../wireguard"
+		},
+		{
 			"name": "wordpress",
 			"path": "../wordpress"
 		},
