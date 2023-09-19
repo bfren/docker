@@ -81,10 +81,6 @@
 			"path": "../node"
 		},
 		{
-			"name": "ocis",
-			"path": "../ocis"
-		},
-		{
 			"name": "php",
 			"path": "../php"
 		},
