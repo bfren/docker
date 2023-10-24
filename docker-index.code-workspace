@@ -123,6 +123,6 @@
 	],
 	"settings": {
 		"files.trimTrailingWhitespace": true,
-		"files.eol": "auto"
+    	"files.eol": "\n"
 	}
 }
