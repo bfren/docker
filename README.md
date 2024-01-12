@@ -59,4 +59,4 @@ For documentation please see the [book](https://docs.bfren.dev/docker/) (work in
 
 ## Copyright
 
-> Copyright (c) 2020-2023 [bfren](https://bfren.dev) (unless otherwise stated)
+> Copyright (c) 2020-2024 [bfren](https://bfren.dev) (unless otherwise stated)
