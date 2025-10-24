@@ -55,7 +55,7 @@ jobs:
           - "StrongId.Newtonsoft.Json"
           - "StrongId.Testing"
     steps:
-      - uses: actions/delete-package-versions@v4
+      - uses: actions/delete-package-versions@v5
         with:
           package-name: ${{ matrix.package }}
           package-type: "nuget"
@@ -69,42 +69,31 @@ jobs:
       matrix:
         package:
           - "Jeebs.Abstractions"
-          - "Jeebs.Apps.ConsoleApps"
-          - "Jeebs.Apps.WebApps"
           - "Jeebs.Auth.Abstractions"
-          - "Jeebs.Auth.Data.Entities"
           - "Jeebs.Cqrs.Abstractions"
           - "Jeebs.Data.Abstractions"
-          - "Jeebs.Data.All"
           - "Jeebs.Data.Apps"
           - "Jeebs.Data.Cryptography"
           - "Jeebs.Data.Mapping"
           - "Jeebs.Data.Querying"
-          - "Jeebs.Data.Types"
-          - "Jeebs.Maybe"
-          - "Jeebs.Maybe.Testing"
           - "Jeebs.Mvc.Auth.Razor"
           - "Jeebs.Mvc.Calendar"
           - "Jeebs.Mvc.Data"
           - "Jeebs.Option"
           - "Jeebs.Option.Abstractions"
           - "Jeebs.Option.Testing"
-          - "Jeebs.Random"
           - "Jeebs.Result"
           - "Jeebs.Result.Chain"
           - "Jeebs.Services.Abstractions"
           - "Jeebs.Services.Drivers.Drawing.Common"
           - "Jeebs.Services.Drivers.Twitter.Tweetinvi"
-          - "Jeebs.Services.Drivers.Webhook.RocketChat"
           - "Jeebs.Services.Twitter"
           - "Jeebs.Types"
           - "Jeebs.WordPress.Abstractions"
-          - "Jeebs.WordPress.Data"
-          - "Jeebs.WordPress.Data.Types"
           - "Jeebs.WordPress.Entities"
           - "Jeebs.WordPress.Old"
     steps:
-      - uses: actions/delete-package-versions@v4
+      - uses: actions/delete-package-versions@v5
         with:
           package-name: ${{ matrix.package }}
           package-type: "nuget"
