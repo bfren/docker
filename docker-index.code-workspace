@@ -123,6 +123,12 @@
 	],
 	"settings": {
 		"files.trimTrailingWhitespace": true,
-    	"files.eol": "\n"
+    	"files.eol": "\n",
+		"nushellLanguageServer.includeDirs": [
+			"Q:/src/docker/alpine/overlay/etc/nu/scripts",
+			"Q:/src/docker/alpine-s6/overlay/etc/nu/scripts",
+			"/Users/ben/src/docker/alpine/overlay/etc/nu/scripts",
+			"/Users/ben/src/docker/alpine-s6/overlay/etc/nu/scripts",
+		]
 	}
 }
