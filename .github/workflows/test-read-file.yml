@@ -6,7 +6,7 @@ jobs:
     steps:
       -
         name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       -
         name: Read Readme
         uses: bfren/action-read-file@v2
