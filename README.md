@@ -60,4 +60,4 @@ On both Alpine and Debian base images I use my own builds of [Busybox](https://g
 
 ## Copyright
 
-> Copyright (c) 2020-2025 [bfren](https://bfren.dev) (unless otherwise stated)
+> Copyright (c) 2020-2026 [bfren](https://bfren.dev) (unless otherwise stated)
