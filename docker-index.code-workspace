@@ -123,6 +123,7 @@
 	],
 	"settings": {
 		"files.trimTrailingWhitespace": true,
-		"files.eol": "\n"
+		"files.eol": "\n",
+		"editor.inlayHints.fontSize": 10
 	}
 }
