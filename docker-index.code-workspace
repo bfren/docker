@@ -124,6 +124,7 @@
 	"settings": {
 		"files.trimTrailingWhitespace": true,
 		"files.eol": "\n",
+		"editor.inlayHints.fontFamily": "Myna, Fira Code",
 		"editor.inlayHints.fontSize": 10
 	}
 }
