@@ -37,6 +37,10 @@
 			"path": "../aspnet"
 		},
 		{
+			"name": "baikal",
+			"path": "../baikal"
+		},
+		{
 			"name": "clamav",
 			"path": "../clamav"
 		},
