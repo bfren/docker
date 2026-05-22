@@ -115,14 +115,6 @@
 		{
 			"name": "wordpress",
 			"path": "../wordpress"
-		},
-		{
-			"name": "backup",
-			"path": "../backup"
-		},
-		{
-			"name": "postgresql-upgrade",
-			"path": "../pg-upgrade"
 		}
 	],
 	"settings": {
