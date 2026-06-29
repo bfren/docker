@@ -49,16 +49,8 @@
 			"path": "../ftps"
 		},
 		{
-			"name": "freescout",
-			"path": "../freescout"
-		},
-		{
 			"name": "freshrss",
 			"path": "../freshrss"
-		},
-		{
-			"name": "lighttpd",
-			"path": "../lighttpd"
 		},
 		{
 			"name": "mariadb",
