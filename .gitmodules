@@ -1,0 +1,75 @@
+[submodule "images/alpine"]
+	path = images/alpine
+	url = https://github.com/bfren/docker-alpine.git
+[submodule "images/alpine-s6"]
+	path = images/alpine-s6
+	url = https://github.com/bfren/docker-alpine-s6.git
+[submodule "images/debian"]
+	path = images/debian
+	url = https://github.com/bfren/docker-debian.git
+[submodule "images/debian-s6"]
+	path = images/debian-s6
+	url = https://github.com/bfren/docker-debian-s6.git
+[submodule "images/apache"]
+	path = images/apache
+	url = https://github.com/bfren/docker-apache.git
+[submodule "images/apache-php"]
+	path = images/apache-php
+	url = https://github.com/bfren/docker-apache-php.git
+[submodule "images/aspnet"]
+	path = images/aspnet
+	url = https://github.com/bfren/docker-aspnet.git
+[submodule "images/baikal"]
+	path = images/baikal
+	url = https://github.com/bfren/docker-baikal.git
+[submodule "images/clamav"]
+	path = images/clamav
+	url = https://github.com/bfren/docker-clamav.git
+[submodule "images/ftps"]
+	path = images/ftps
+	url = https://github.com/bfren/docker-ftps.git
+[submodule "images/freshrss"]
+	path = images/freshrss
+	url = https://github.com/bfren/docker-freshrss.git
+[submodule "images/mariadb"]
+	path = images/mariadb
+	url = https://github.com/bfren/docker-mariadb.git
+[submodule "images/nginx"]
+	path = images/nginx
+	url = https://github.com/bfren/docker-nginx.git
+[submodule "images/nginx-php"]
+	path = images/nginx-php
+	url = https://github.com/bfren/docker-nginx-php.git
+[submodule "images/nginx-proxy"]
+	path = images/nginx-proxy
+	url = https://github.com/bfren/docker-nginx-proxy.git
+[submodule "images/nginx-webdav"]
+	path = images/nginx-webdav
+	url = https://github.com/bfren/docker-nginx-webdav.git
+[submodule "images/node"]
+	path = images/node
+	url = https://github.com/bfren/docker-node.git
+[submodule "images/php"]
+	path = images/php
+	url = https://github.com/bfren/docker-php.git
+[submodule "images/postgresql"]
+	path = images/postgresql
+	url = https://github.com/bfren/docker-postgresql.git
+[submodule "images/redis"]
+	path = images/redis
+	url = https://github.com/bfren/docker-redis.git
+[submodule "images/samba"]
+	path = images/samba
+	url = https://github.com/bfren/docker-samba.git
+[submodule "images/send"]
+	path = images/send
+	url = https://github.com/bfren/docker-send.git
+[submodule "images/unbound"]
+	path = images/unbound
+	url = https://github.com/bfren/docker-unbound.git
+[submodule "images/wireguard"]
+	path = images/wireguard
+	url = https://github.com/bfren/docker-wireguard.git
+[submodule "images/wordpress"]
+	path = images/wordpress
+	url = https://github.com/bfren/docker-wordpress.git
