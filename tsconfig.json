@@ -1,0 +1,19 @@
+{
+    "compilerOptions": {
+        "skipLibCheck": true,
+        "types": [
+            "@txikijs/types"
+        ],
+        "paths": {
+            "bf": [
+                "./images/alpine/overlay/etc/tjs/scripts/bf/index.ts"
+            ]
+        }
+    },
+    "include": [
+        "./images/**/*.ts"
+    ],
+    "exclude": [
+        "./node_modules"
+    ]
+}
