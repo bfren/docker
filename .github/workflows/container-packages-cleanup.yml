@@ -42,7 +42,7 @@ jobs:
           - "backup"
           - "pg-upgrade"
     steps:
-      - uses: actions/delete-package-versions@v5
+      - uses: seantis/delete-package-versions@main
         with:
           package-name: ${{ matrix.package }}
           package-type: "container"
