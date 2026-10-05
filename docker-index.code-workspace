@@ -41,6 +41,10 @@
 			"path": "../baikal"
 		},
 		{
+			"name": "caddy-proxy",
+			"path": "../caddy-proxy"
+		},
+		{
 			"name": "clamav",
 			"path": "../clamav"
 		},
@@ -113,6 +117,9 @@
 		"files.trimTrailingWhitespace": true,
 		"files.eol": "\n",
 		"editor.inlayHints.fontFamily": "Myna, Fira Code",
-		"editor.inlayHints.fontSize": 10
+		"editor.inlayHints.fontSize": 10,
+		"[nushell]": {
+			"editor.showDeprecated": false
+		}
 	}
 }
