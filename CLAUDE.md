@@ -56,6 +56,10 @@ Rules:
 * **Every table is aligned**: each column padded to its longest cell, separator dashes to match. After editing any
   README run `python3 tools/fmt_tables.py apply <README.md>` (from this repository), then `check` - it must report
   `0 table(s) misaligned`.
+  * **Exception - the index `README.md`**: its Base Images and Applications tables share the same column widths so they
+    line up with each other. Use `--shared` (`python3 tools/fmt_tables.py apply --shared README.md`), which gives tables
+    with the same number of columns the same widths and keeps any existing extra padding. When adding a row, keep it in
+    alphabetical order and copy the badge and link format of the rows around it.
 * **Don't duplicate a parent image's documentation.** Summarise and link to it (Debian links to Alpine for the full guide,
   Debian + S6 to Alpine + S6, nginx-based images to nginx), then document only what is different.
 * **Tag examples use the version being released** (from `VERSION`), not the last published one.
