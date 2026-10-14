@@ -34,6 +34,8 @@ Release in this order: **alpine → debian → alpine-s6 → debian-s6 → downs
 
 * `VERSION`, `VERSION_MAJOR` and `VERSION_MINOR` in each image repository. `bump.sh` (run from an image directory)
   bumps the revision.
+* Each image's `.github/workflows/dev.yml` pushes the same tags as `publish.yml` with a `-dev` suffix (`latest` becomes
+  `dev`). After changing tags in `publish.yml`, run `python3 index/tools/sync_dev_tags.py --apply` from the parent folder.
 * Major: breaking changes. Minor: new features or behaviour. Revision: fixes, and rebuilds for upstream updates (e.g. a
   new base image or BusyBox version with no behaviour change).
 
