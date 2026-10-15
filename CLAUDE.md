@@ -18,7 +18,7 @@ alpine ─┬─ debian ─── debian-s6 ─── mariadb (Debian variant)
                       │         ├─ nginx-proxy
                       │         └─ nginx-webdav
                       ├─ node ─── send
-                      └─ aspnet, backup, caddy-proxy, clamav, ftps, mariadb (Alpine variant), postgresql, redis,
+                      └─ aspnet, caddy-proxy, clamav, ftps, mariadb (Alpine variant), postgresql, redis,
                          samba, unbound, wireguard
 ```
 
