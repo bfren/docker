@@ -13,12 +13,12 @@ clean `main` branches). The image list comes from `docker-index.code-workspace` 
 ```plain
 alpine ─┬─ debian ─── debian-s6 ─── mariadb (Debian variant)
         ├─ php
+        ├─ pg-upgrade
         └─ alpine-s6 ─┬─ nginx ─┬─ nginx-php ─── baikal, freshrss, wordpress
                       │         ├─ nginx-proxy
                       │         └─ nginx-webdav
-                      ├─ apache ─── apache-php
                       ├─ node ─── send
-                      └─ aspnet, caddy-proxy, clamav, ftps, mariadb (Alpine variant), postgresql, redis,
+                      └─ aspnet, backup, caddy-proxy, clamav, ftps, mariadb (Alpine variant), postgresql, redis,
                          samba, unbound, wireguard
 ```
 
