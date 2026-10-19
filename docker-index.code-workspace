@@ -57,10 +57,6 @@
 			"path": "../nginx-php"
 		},
 		{
-			"name": "nginx-proxy",
-			"path": "../nginx-proxy"
-		},
-		{
 			"name": "nginx-webdav",
 			"path": "../nginx-webdav"
 		},
