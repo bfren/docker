@@ -13,9 +13,7 @@ clean `main` branches). The image list comes from `docker-index.code-workspace` 
 ```plain
 alpine ─┬─ debian ─── debian-s6 ─── mariadb (Debian variant)
         ├─ php
-        ├─ pg-upgrade
         └─ alpine-s6 ─┬─ nginx ─┬─ nginx-php ─── baikal, freshrss, wordpress
-                      │         ├─ nginx-proxy
                       │         └─ nginx-webdav
                       ├─ node ─── send
                       └─ aspnet, caddy-proxy, clamav, ftps, mariadb (Alpine variant), postgresql, redis,
@@ -78,6 +76,7 @@ Rules:
 
 * If a claim can't be verified from the code (e.g. a package's behaviour on an older Alpine), say so or leave it out.
 * British English, short sentences, hyphens (` - `) rather than em dashes.
+* Compose examples use the list syntax for `environment` (`- KEY=value`), without quotes around values.
 
 ## Code conventions
 
