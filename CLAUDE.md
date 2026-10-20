@@ -11,12 +11,12 @@ clean `main` branches). The image list comes from `docker-index.code-workspace` 
 ## Image dependencies and release order
 
 ```plain
-alpine ─┬─ debian ─── debian-s6 ─── mariadb (Debian variant)
+alpine ─┬─ debian ─── debian-s6 ─── mariadb
         ├─ php
         └─ alpine-s6 ─┬─ nginx ─┬─ nginx-php ─── baikal, freshrss, wordpress
                       │         └─ nginx-webdav
                       ├─ node ─── send
-                      └─ aspnet, caddy-proxy, clamav, ftps, mariadb (Alpine variant), postgresql, redis,
+                      └─ aspnet, caddy-proxy, clamav, ftps, postgresql, redis,
                          samba, unbound, wireguard
 ```
 
