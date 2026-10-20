@@ -88,5 +88,5 @@ Rules:
   `/test` runs them **in parallel in one container**, so each test must be self-contained: use temporary directories,
   never modify shared files (e.g. `/etc/nginx`), and never depend on which processes are running - stub commands on
   `PATH` instead.
-* Test with `./test.sh [os-version]` in each image repository; test both ends of the supported version range when
-  behaviour depends on the OS version.
+* Test with `./test.nu [version]` in each image repository (`./test.nu --all` tests every version); test both ends
+  of the supported version range when behaviour depends on the OS version.
