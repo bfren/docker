@@ -5,96 +5,108 @@
 			"path": "."
 		},
 		{
-			"name": "alpine",
+			"name": "base-alpine",
 			"path": "../alpine"
 		},
 		{
-			"name": "alpine-s6",
+			"name": "base-alpine-s6",
 			"path": "../alpine-s6"
 		},
 		{
-			"name": "debian",
+			"name": "base-debian",
 			"path": "../debian"
 		},
 		{
-			"name": "debian-s6",
+			"name": "base-debian-s6",
 			"path": "../debian-s6"
 		},
 		{
-			"name": "aspnet",
+			"name": "image-aspnet",
 			"path": "../aspnet"
 		},
 		{
-			"name": "baikal",
+			"name": "image-baikal",
 			"path": "../baikal"
 		},
 		{
-			"name": "caddy-proxy",
+			"name": "image-caddy-proxy",
 			"path": "../caddy-proxy"
 		},
 		{
-			"name": "clamav",
+			"name": "image-clamav",
 			"path": "../clamav"
 		},
 		{
-			"name": "ftps",
+			"name": "image-ftps",
 			"path": "../ftps"
 		},
 		{
-			"name": "freshrss",
+			"name": "image-freshrss",
 			"path": "../freshrss"
 		},
 		{
-			"name": "mariadb",
+			"name": "image-mariadb",
 			"path": "../mariadb"
 		},
 		{
-			"name": "nginx",
+			"name": "image-nginx",
 			"path": "../nginx"
 		},
 		{
-			"name": "nginx-php",
+			"name": "image-nginx-php",
 			"path": "../nginx-php"
 		},
 		{
-			"name": "nginx-webdav",
+			"name": "image-nginx-webdav",
 			"path": "../nginx-webdav"
 		},
 		{
-			"name": "node",
+			"name": "image-node",
 			"path": "../node"
 		},
 		{
-			"name": "php",
+			"name": "image-php",
 			"path": "../php"
 		},
 		{
-			"name": "postgresql",
+			"name": "image-postgresql",
 			"path": "../postgresql"
 		},
 		{
-			"name": "redis",
+			"name": "image-redis",
 			"path": "../redis"
 		},
 		{
-			"name": "samba",
+			"name": "image-samba",
 			"path": "../samba"
 		},
 		{
-			"name": "send",
+			"name": "image-send",
 			"path": "../send"
 		},
 		{
-			"name": "unbound",
+			"name": "image-unbound",
 			"path": "../unbound"
 		},
 		{
-			"name": "wireguard",
+			"name": "image-wireguard",
 			"path": "../wireguard"
 		},
 		{
-			"name": "wordpress",
+			"name": "image-wordpress",
 			"path": "../wordpress"
+		},
+		{
+			"name": "build-busybox",
+			"path": "../../busybox"
+		},
+		{
+			"name": "build-nushell",
+			"path": "../../nushell"
+		},
+		{
+			"name": "build-unbound",
+			"path": "../../unbound"
 		}
 	],
 	"settings": {
