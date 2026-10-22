@@ -5,107 +5,107 @@
 			"path": "."
 		},
 		{
-			"name": "base-alpine",
+			"name": "alpine",
 			"path": "../alpine"
 		},
 		{
-			"name": "base-alpine-s6",
+			"name": "alpine-s6",
 			"path": "../alpine-s6"
 		},
 		{
-			"name": "base-debian",
+			"name": "debian",
 			"path": "../debian"
 		},
 		{
-			"name": "base-debian-s6",
+			"name": "debian-s6",
 			"path": "../debian-s6"
 		},
 		{
-			"name": "image-aspnet",
+			"name": "aspnet",
 			"path": "../aspnet"
 		},
 		{
-			"name": "image-baikal",
+			"name": "baikal",
 			"path": "../baikal"
 		},
 		{
-			"name": "image-caddy-proxy",
+			"name": "caddy-proxy",
 			"path": "../caddy-proxy"
 		},
 		{
-			"name": "image-clamav",
+			"name": "clamav",
 			"path": "../clamav"
 		},
 		{
-			"name": "image-ftps",
+			"name": "ftps",
 			"path": "../ftps"
 		},
 		{
-			"name": "image-freshrss",
+			"name": "freshrss",
 			"path": "../freshrss"
 		},
 		{
-			"name": "image-mariadb",
+			"name": "mariadb",
 			"path": "../mariadb"
 		},
 		{
-			"name": "image-nginx",
+			"name": "nginx",
 			"path": "../nginx"
 		},
 		{
-			"name": "image-nginx-php",
+			"name": "nginx-php",
 			"path": "../nginx-php"
 		},
 		{
-			"name": "image-nginx-webdav",
+			"name": "nginx-webdav",
 			"path": "../nginx-webdav"
 		},
 		{
-			"name": "image-node",
+			"name": "node",
 			"path": "../node"
 		},
 		{
-			"name": "image-php",
+			"name": "php",
 			"path": "../php"
 		},
 		{
-			"name": "image-postgresql",
+			"name": "postgresql",
 			"path": "../postgresql"
 		},
 		{
-			"name": "image-redis",
+			"name": "redis",
 			"path": "../redis"
 		},
 		{
-			"name": "image-samba",
+			"name": "samba",
 			"path": "../samba"
 		},
 		{
-			"name": "image-send",
+			"name": "send",
 			"path": "../send"
 		},
 		{
-			"name": "image-unbound",
+			"name": "unbound",
 			"path": "../unbound"
 		},
 		{
-			"name": "image-wireguard",
+			"name": "wireguard",
 			"path": "../wireguard"
 		},
 		{
-			"name": "image-wordpress",
+			"name": "wordpress",
 			"path": "../wordpress"
 		},
 		{
-			"name": "build-busybox",
+			"name": "bin/busybox",
 			"path": "../../busybox"
 		},
 		{
-			"name": "build-nushell",
+			"name": "bin/nushell",
 			"path": "../../nushell"
 		},
 		{
-			"name": "build-unbound",
+			"name": "bin/unbound",
 			"path": "../../unbound"
 		}
 	],
