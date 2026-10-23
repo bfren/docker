@@ -101,6 +101,10 @@
 			"path": "../../busybox"
 		},
 		{
+			"name": "bin/figlet",
+			"path": "../../figlet"
+		},
+		{
 			"name": "bin/nushell",
 			"path": "../../nushell"
 		},
