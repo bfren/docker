@@ -83,9 +83,13 @@ jobs:
           FOLDERS: ${{ inputs.folders }}
           PLATFORMS: ${{ inputs.platforms }}
         run: |
-          echo "version=$(< VERSION)" >> $GITHUB_OUTPUT
-          echo "folders=$(jq -Rnc '[inputs | gsub("\\s"; "") | select(. != "")]' <<< "${FOLDERS}")" >> $GITHUB_OUTPUT
-          echo "platforms=$(jq -Rnc '[inputs | gsub("\\s"; "") | select(. != "")]' <<< "${PLATFORMS}")" >> $GITHUB_OUTPUT
+          # turn a list with one item per line into a JSON array, ignoring blank lines
+          list() { jq -Rnc '[inputs | gsub("\\s"; "") | select(. != "")]' ; }
+          {
+            echo "version=$(< VERSION)"
+            echo "folders=$(list <<< "${FOLDERS}")"
+            echo "platforms=$(list <<< "${PLATFORMS}")"
+          } >> "${GITHUB_OUTPUT}"
         shell: bash
 
   build:
@@ -140,7 +144,9 @@ jobs:
       -
         name: Run tests
         if: ${{ !inputs.publish && env.NATIVE == 'true' }}
-        run: docker run --rm --entrypoint /test ${{ inputs.image }}:test
+        env:
+          IMAGE: ${{ inputs.image }}
+        run: docker run --rm --entrypoint /test "${IMAGE}:test"
       -
         name: Build and push by digest
         id: push
@@ -214,21 +220,22 @@ jobs:
         run: |
           # load version files as variables - later files win, so the folder's own files override the repository's
           for file in VERSION* overlay/tmp/* "${FOLDER}"/* "${FOLDER}"/overlay/tmp/* ; do
-            if [[ -f "${file}" && "${file##*/}" =~ ^[A-Z0-9_]+$ ]] ; then export "${file##*/}=$(< "${file}")" ; fi
+            name=${file##*/}
+            if [[ -f ${file} && ${name} =~ ^[A-Z0-9_]+$ ]] ; then export "${name}=$(< "${file}")" ; fi
           done
 
-          # fill in the tags, stopping if a variable has no value - development builds add -dev, and latest becomes dev
-          [ "${FOLDER}" != "${DEFAULT_FOLDER}" ] || TAGS+=$'\n'"${DEFAULT_TAGS}"
+          # fill in the tags, stopping if a variable has no file - development builds add -dev, and latest becomes dev
+          [[ ${FOLDER} != "${DEFAULT_FOLDER}" ]] || TAGS+=$'\n'"${DEFAULT_TAGS}"
           for var in $(envsubst --variables "${TAGS}") ; do
-            [ -n "${!var:-}" ] || { echo "No file for \$${var} - looked in ${FOLDER}, ${FOLDER}/overlay/tmp, overlay/tmp and the root" ; exit 1 ; }
+            [[ -n ${!var:-} ]] || { echo "No file for \$${var} in ${FOLDER}, ${FOLDER}/overlay/tmp, overlay/tmp or the root" ; exit 1 ; }
           done
           tags=$(envsubst <<< "${TAGS}" | grep .)
-          [ "${PUBLISH}" = "true" ] || tags=$(sed -e 's/^latest$/dev/' -e '/^dev$/!s/$/-dev/' <<< "${tags}")
+          [[ ${PUBLISH} == true ]] || tags=$(sed -e 's/^latest$/dev/' -e '/^dev$/!s/$/-dev/' <<< "${tags}")
           echo "${tags}"
 
           # join the platform digests into one image with every tag, in each registry
-          digests=$(ls ${{ runner.temp }}/digests)
-          for image in bfren/${IMAGE} quay.io/bfren/${IMAGE} ; do
-            docker buildx imagetools create $(printf -- "-t ${image}:%s " ${tags}) $(printf "${image}@sha256:%s " ${digests})
+          cd "${RUNNER_TEMP}/digests"
+          for image in "bfren/${IMAGE}" "quay.io/bfren/${IMAGE}" ; do
+            docker buildx imagetools create $(printf -- "-t ${image}:%s " ${tags}) $(printf "${image}@sha256:%s " *)
           done
         shell: bash
