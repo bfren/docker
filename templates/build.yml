@@ -27,6 +27,9 @@ jobs:
         linux/amd64
         linux/arm64
 
+      # optional: a script to run after the tests, given the test image's tag - e.g. to start the image under S6
+      # smoke-test: ./smoke.sh
+
       # always this line - release builds publish, everything else is a -dev build
       publish: ${{ github.event_name == 'release' }}
 

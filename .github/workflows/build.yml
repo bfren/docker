@@ -46,6 +46,11 @@ on:
         required: false
         type: string
         default: ''
+      smoke-test:
+        description: Script to run after the tests, given the test image's tag (e.g. ./smoke.sh) - leave out if there is none
+        required: false
+        type: string
+        default: ''
       publish:
         description: Build release images - adds BF_PUBLISHING=1 and skips the tests (publishing removes them)
         required: false
@@ -155,6 +160,13 @@ jobs:
         env:
           IMAGE: ${{ inputs.image }}
         run: docker run --rm --entrypoint /test "${IMAGE}:test"
+      -
+        name: Run smoke test
+        if: ${{ !inputs.publish && env.NATIVE == 'true' && inputs.smoke-test != '' }}
+        env:
+          IMAGE: ${{ inputs.image }}
+          SMOKE_TEST: ${{ inputs.smoke-test }}
+        run: sh "${SMOKE_TEST}" "${IMAGE}:test"
       -
         name: Build and push by digest
         id: push

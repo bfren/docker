@@ -9,7 +9,8 @@ Each image has one small workflow that calls it - copy [build.yml](build.yml) to
 - **Branch pushes** build, test and push development images - `-dev` is added to every tag, and `latest` becomes `dev`.
 - **Published releases** build and push release images with `BF_PUBLISHING=1` (which removes the tests).
 - Each folder is built for each platform on its own runner: amd64 and arm64 natively, anything else using QEMU.
-  Tests run on the native platforms. The platforms are then joined into one multi-platform image per folder.
+  Tests run on the native platforms, followed by the `smoke-test` script if there is one (it is given the test image's
+  tag). The platforms are then joined into one multi-platform image per folder.
 
 ## The two rules for tags
 
