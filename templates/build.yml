@@ -41,7 +41,7 @@ jobs:
         ${FOLDER}-${VERSION_MINOR}
         ${FOLDER}-${VERSION}
 
-      # optional: one folder that also gets default-tags - leave out for images with several versions, so users choose
+      # optional: only for images with several versions where one should also be 'latest' - see README.md
       # default-folder: FOLDER
       # default-tags: |
       #   latest

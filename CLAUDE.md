@@ -37,9 +37,10 @@ Release in this order: **alpine → debian → alpine-s6 → debian-s6 → downs
   has one `.github/workflows/build.yml` (instead of `dev.yml` and `publish.yml`) that runs on branch pushes and
   releases, and lists its folders, platforms and tags once. Tags can use `${FOLDER}` and version files as variables
   (`${VERSION}`, `${VERSION_MAJOR}`, `${ALPINE_REVISION}`…), and the folder named in `default-folder` also gets
-  `default-tags`. Development builds add `-dev` to every tag (`latest` becomes `dev`). Images with several versions
-  avoid `latest`, so users choose a version - except Alpine, which other images and scripts use untagged. Alpine is the
-  first. To move an image, follow `index/templates/README.md` and copy `index/templates/build.yml`.
+  `default-tags`. Development builds add `-dev` to every tag (`latest` becomes `dev`). An image with several versions
+  has a `default-folder` only when one version should also be `latest` (Alpine, Alpine S6, Debian, Debian S6, Nginx and
+  PHP); the rest leave it out, so users choose a version. Alpine is the first. To move an image, follow
+  `index/templates/README.md` and copy `index/templates/build.yml`.
 * In images not yet moved, `.github/workflows/dev.yml` pushes the same tags as `publish.yml` with a `-dev` suffix
   (`latest` becomes `dev`). After changing tags in `publish.yml`, run `python3 index/tools/sync_dev_tags.py --apply`
   from the parent folder.

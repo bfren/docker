@@ -21,8 +21,10 @@ Each image has one small workflow that calls it - copy [build.yml](build.yml) to
 
 If a tag uses a variable with no matching file, the build stops and says which variable it could not find.
 
-Only give `latest` to images with a single Dockerfile. Images with several versions leave it out so users choose a
-version - except Alpine, which other images and scripts use untagged.
+An image with a single Dockerfile puts `latest` in its `tags`. An image with several versions names a `default-folder`
+only when one version should also be `latest` (Alpine, Alpine S6, Debian, Debian S6, Nginx and PHP); its
+`default-tags` are then `latest` and the bare version tags. Everything else leaves both out, so users choose a
+version.
 
 ## Examples
 
