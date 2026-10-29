@@ -10,8 +10,11 @@ name: build
 #
 #   Tags can use ${FOLDER} and version files as variables: VERSION, VERSION_MAJOR and VERSION_MINOR from the repository,
 #   then any upper-case file in overlay/tmp, the folder, and the folder's overlay/tmp (e.g. ${ALPINE_REVISION}). The
-#   folder named in 'default-folder' also gets 'default-tags'. Development builds add -dev to every tag, and latest
-#   becomes dev.
+#   folder named in 'default-folder' also gets 'default-tags'.
+#
+#   A release (the calling workflow's 'release' event) builds release images: BF_PUBLISHING=1 is added, which removes
+#   the tests, so they are not run. Anything else is a development build: the tests run, -dev is added to every tag,
+#   and latest becomes dev.
 
 on:
   workflow_call:
@@ -51,11 +54,6 @@ on:
         required: false
         type: string
         default: ''
-      publish:
-        description: Build release images - adds BF_PUBLISHING=1 and skips the tests (publishing removes them)
-        required: false
-        type: boolean
-        default: false
     secrets:
       DOCKERHUB_USERNAME:
         required: true
@@ -69,6 +67,10 @@ on:
 
 permissions:
   contents: read
+
+env:
+  # 'true' for release builds - github is the calling workflow's context, so this is the event that triggered it
+  PUBLISH: ${{ github.event_name == 'release' }}
 
 jobs:
   prepare:
@@ -144,7 +146,7 @@ jobs:
       -
         name: Build and export
         # tests run on native runners only - emulated platforms are slow and less reliable
-        if: ${{ !inputs.publish && env.NATIVE == 'true' }}
+        if: ${{ env.PUBLISH != 'true' && env.NATIVE == 'true' }}
         uses: docker/build-push-action@v7
         with:
           context: .
@@ -158,13 +160,13 @@ jobs:
           cache-from: type=gha,scope=${{ env.CACHE_SCOPE }}
       -
         name: Run tests
-        if: ${{ !inputs.publish && env.NATIVE == 'true' }}
+        if: ${{ env.PUBLISH != 'true' && env.NATIVE == 'true' }}
         env:
           IMAGE: ${{ inputs.image }}
         run: docker run --rm --entrypoint /test "${IMAGE}:test"
       -
         name: Run smoke test
-        if: ${{ !inputs.publish && env.NATIVE == 'true' && inputs.smoke-test != '' }}
+        if: ${{ env.PUBLISH != 'true' && env.NATIVE == 'true' && inputs.smoke-test != '' }}
         env:
           IMAGE: ${{ inputs.image }}
           SMOKE_TEST: ${{ inputs.smoke-test }}
@@ -178,7 +180,7 @@ jobs:
           file: ./${{ matrix.folder }}/Dockerfile
           build-args: |
             BF_IMAGE=${{ github.event.repository.name }}
-            ${{ inputs.publish && 'BF_PUBLISHING=1' || '' }}
+            ${{ env.PUBLISH == 'true' && 'BF_PUBLISHING=1' || '' }}
             BF_VERSION=${{ needs.prepare.outputs.version }}
           platforms: ${{ matrix.platform }}
           # reuse layers from earlier runs, and save every stage (mode=max) so multi-stage builds benefit too
@@ -242,7 +244,6 @@ jobs:
           TAGS: ${{ inputs.tags }}
           DEFAULT_FOLDER: ${{ inputs.default-folder }}
           DEFAULT_TAGS: ${{ inputs.default-tags }}
-          PUBLISH: ${{ inputs.publish }}
         run: |
           # load version files as variables - later files win, so the folder's own files override the repository's
           for file in VERSION* overlay/tmp/* "${FOLDER}"/* "${FOLDER}"/overlay/tmp/* ; do

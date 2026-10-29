@@ -30,9 +30,6 @@ jobs:
       # optional: a script to run after the tests, given the test image's tag - e.g. to start the image under S6
       # smoke-test: ./smoke.sh
 
-      # always this line - release builds publish, everything else is a -dev build
-      publish: ${{ github.event_name == 'release' }}
-
       # tags for each folder, one per line - use ${FOLDER}, ${VERSION}, ${VERSION_MAJOR}, ${VERSION_MINOR}, and the
       # name of any version file (e.g. ${ALPINE_REVISION}) - do not add -dev, it is added for development builds
       tags: |

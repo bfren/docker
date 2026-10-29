@@ -39,7 +39,6 @@ No `folders`: the Dockerfile is in the repository root. The application version 
         linux/amd64
         linux/arm/v7
         linux/arm64
-      publish: ${{ github.event_name == 'release' }}
       tags: |
         latest
         ${VERSION_MAJOR}
@@ -69,7 +68,6 @@ One folder per Alpine version, each with an `ALPINE_REVISION` file. The newest v
         linux/amd64
         linux/arm/v7
         linux/arm64
-      publish: ${{ github.event_name == 'release' }}
       tags: |
         alpine${FOLDER}
         alpine${FOLDER}-${VERSION_MAJOR}
@@ -102,7 +100,6 @@ file. The WordPress version comes from `overlay/tmp/WP_MINOR` and `WP_VERSION` i
       platforms: |
         linux/amd64
         linux/arm64
-      publish: ${{ github.event_name == 'release' }}
       tags: |
         ${FOLDER}
         ${FOLDER}-${VERSION_MAJOR}
