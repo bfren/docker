@@ -92,7 +92,7 @@ jobs:
           } >> "${GITHUB_OUTPUT}"
         shell: bash
 
-  build:
+  execute:
     needs: prepare
     strategy:
       fail-fast: false
@@ -107,6 +107,13 @@ jobs:
       -
         name: Checkout code
         uses: actions/checkout@v7
+      -
+        name: Name layer cache
+        # one cache per folder and platform - '/' is replaced so the platform can be used in a name
+        env:
+          FOLDER: ${{ matrix.folder }}
+          PLATFORM: ${{ matrix.platform }}
+        run: echo "CACHE_SCOPE=${FOLDER}-${PLATFORM//\//-}" >> "${GITHUB_ENV}"
       -
         name: Set up QEMU
         if: env.NATIVE != 'true'
@@ -141,6 +148,7 @@ jobs:
           load: true
           platforms: ${{ matrix.platform }}
           tags: ${{ inputs.image }}:test
+          cache-from: type=gha,scope=${{ env.CACHE_SCOPE }}
       -
         name: Run tests
         if: ${{ !inputs.publish && env.NATIVE == 'true' }}
@@ -159,6 +167,9 @@ jobs:
             ${{ inputs.publish && 'BF_PUBLISHING=1' || '' }}
             BF_VERSION=${{ needs.prepare.outputs.version }}
           platforms: ${{ matrix.platform }}
+          # reuse layers from earlier runs, and save every stage (mode=max) so multi-stage builds benefit too
+          cache-from: type=gha,scope=${{ env.CACHE_SCOPE }}
+          cache-to: type=gha,scope=${{ env.CACHE_SCOPE }},mode=max
           outputs: type=image,"name=bfren/${{ inputs.image }},quay.io/bfren/${{ inputs.image }}",push-by-digest=true,name-canonical=true,push=true
       -
         name: Save digest
@@ -175,7 +186,7 @@ jobs:
           retention-days: 1
 
   merge:
-    needs: [prepare, build]
+    needs: [prepare, execute]
     strategy:
       fail-fast: false
       matrix:
@@ -233,9 +244,12 @@ jobs:
           [[ ${PUBLISH} == true ]] || tags=$(sed -e 's/^latest$/dev/' -e '/^dev$/!s/$/-dev/' <<< "${tags}")
           echo "${tags}"
 
-          # join the platform digests into one image with every tag, in each registry
+          # join the platform digests into one image with every tag - both registries at once, failing if either fails
           cd "${RUNNER_TEMP}/digests"
+          pids=()
           for image in "bfren/${IMAGE}" "quay.io/bfren/${IMAGE}" ; do
-            docker buildx imagetools create $(printf -- "-t ${image}:%s " ${tags}) $(printf "${image}@sha256:%s " *)
+            docker buildx imagetools create $(printf -- "-t ${image}:%s " ${tags}) $(printf "${image}@sha256:%s " *) &
+            pids+=($!)
           done
+          for pid in "${pids[@]}" ; do wait "${pid}" ; done
         shell: bash
