@@ -98,6 +98,8 @@ jobs:
         shell: bash
 
   execute:
+    # name the job after the platform alone when building from the repository root, instead of '(., linux/amd64)'
+    name: ${{ matrix.folder == '.' && format('execute ({0})', matrix.platform) || format('execute ({0}, {1})', matrix.folder, matrix.platform) }}
     needs: prepare
     strategy:
       fail-fast: false
@@ -198,6 +200,7 @@ jobs:
           retention-days: 1
 
   merge:
+    name: ${{ matrix.folder == '.' && 'merge' || format('merge ({0})', matrix.folder) }}
     needs: [prepare, execute]
     strategy:
       fail-fast: false
