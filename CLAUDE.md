@@ -32,8 +32,17 @@ Release in this order: **alpine → debian → alpine-s6 → debian-s6 → downs
 
 * `VERSION`, `VERSION_MAJOR` and `VERSION_MINOR` in each image repository. `bump.sh` (run from an image directory)
   bumps the revision.
-* Each image's `.github/workflows/dev.yml` pushes the same tags as `publish.yml` with a `-dev` suffix (`latest` becomes
-  `dev`). After changing tags in `publish.yml`, run `python3 index/tools/sync_dev_tags.py --apply` from the parent folder.
+* Images are moving to the reusable workflow `index/.github/workflows/build.yml`, which builds each platform on its own
+  runner (amd64 and arm64 natively, others with QEMU) and joins them into one multi-platform image. An image using it
+  has one `.github/workflows/build.yml` (instead of `dev.yml` and `publish.yml`) that runs on branch pushes and
+  releases, and lists its folders, platforms and tags once. Tags can use `${FOLDER}` and version files as variables (`${VERSION}`,
+  `${VERSION_MAJOR}`, `${ALPINE_REVISION}`…), and the folder named in `latest` also gets `latest-tags`. Development
+  builds add `-dev` to every tag (`latest` becomes `dev`). Images with several versions avoid `latest`, so users choose
+  a version - except Alpine, which other images and scripts use untagged. Alpine is the first. To move an image, follow
+  `index/templates/README.md` and copy `index/templates/build.yml`.
+* In images not yet moved, `.github/workflows/dev.yml` pushes the same tags as `publish.yml` with a `-dev` suffix
+  (`latest` becomes `dev`). After changing tags in `publish.yml`, run `python3 index/tools/sync_dev_tags.py --apply`
+  from the parent folder.
 * Major: breaking changes. Minor: new features or behaviour. Revision: fixes, and rebuilds for upstream updates (e.g. a
   new base image or BusyBox version with no behaviour change).
 
@@ -69,7 +78,7 @@ Rules:
   | ----------------------------------- | ------------------------------------------------------------------- |
   | Health-check timing                 | `HEALTHCHECK` line in `Dockerfile.esh`                              |
   | Environment variables and defaults  | `ENV` block in `Dockerfile.esh`, and `overlay/etc/bf/init.d/*.nu`   |
-  | Published tags and platforms        | `.github/workflows/publish.yml`                                     |
+  | Published tags and platforms        | `.github/workflows/build.yml`, or `publish.yml` if not yet moved    |
   | Supported OS / application versions | `generate-dockerfiles.sh` and the per-version directories           |
   | Base image and pinned versions      | `generate-dockerfiles.sh` (`BASE_VERSION`, `ALPINE_BRANCH`, …)      |
   | Commands and modules                | `overlay/etc/nu/scripts/<module>/` and `overlay/usr/bin/bf/`        |

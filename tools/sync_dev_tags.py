@@ -94,5 +94,7 @@ def process(repo, apply):
 apply = '--apply' in sys.argv
 for repo in sorted(os.listdir('.')):
     if not os.path.isfile(f'{repo}/.github/workflows/dev.yml'): continue
+    # images using the reusable build workflow have one build.yml for both, so dev and publish cannot drift
+    if os.path.isfile(f'{repo}/.github/workflows/build.yml'): print(f'{repo}: uses build.yml - skipped'); continue
     try: print(f'{repo}: ' + '; '.join(process(repo, apply)))
     except Exception as e: print(f'{repo}: ERROR {e!r}')

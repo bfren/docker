@@ -1,0 +1,233 @@
+name: build
+
+# Reusable workflow: build, test and push a bfren image.
+#
+#   Builds the Dockerfile in each folder, on each platform. amd64 and arm64 build on native runners, and anything else
+#   (e.g. arm/v7) using QEMU. Each build is pushed by digest, then one
+#   job per folder joins the platforms into a single multi-platform image and adds the tags.
+#
+#   See templates/README.md in this repository for how to use it.
+#
+#   Tags can use ${FOLDER} and version files as variables: VERSION, VERSION_MAJOR and VERSION_MINOR from the repository,
+#   then any upper-case file in overlay/tmp, the folder, and the folder's overlay/tmp (e.g. ${ALPINE_REVISION}). The
+#   folder named in 'latest' also gets 'latest-tags'. Development builds add -dev to every tag, and latest becomes dev.
+
+on:
+  workflow_call:
+    inputs:
+      image:
+        description: Image name, published as bfren/<image> and quay.io/bfren/<image>
+        required: true
+        type: string
+      folders:
+        description: Folders containing a Dockerfile, one per line - default the repository root
+        required: false
+        type: string
+        default: .
+      platforms:
+        description: Platforms to build, one per line
+        required: false
+        type: string
+        default: |
+          linux/amd64
+          linux/arm64
+      tags:
+        description: Tags for each folder, one per line, using ${FOLDER} and version file variables
+        required: true
+        type: string
+      latest:
+        description: The folder that also gets 'latest-tags'
+        required: false
+        type: string
+        default: ''
+      latest-tags:
+        description: Extra tags for the folder named in 'latest', one per line
+        required: false
+        type: string
+        default: ''
+      publish:
+        description: Build release images - adds BF_PUBLISHING=1 and skips the tests (publishing removes them)
+        required: false
+        type: boolean
+        default: false
+    secrets:
+      DOCKERHUB_USERNAME:
+        required: true
+      DOCKERHUB_TOKEN:
+        required: true
+      QUAY_USERNAME:
+        description: Defaults to the repository owner
+        required: false
+      QUAY_TOKEN:
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.read.outputs.version }}
+      folders: ${{ steps.read.outputs.folders }}
+      platforms: ${{ steps.read.outputs.platforms }}
+    steps:
+      -
+        name: Checkout code
+        uses: actions/checkout@v7
+      -
+        name: Read version, folders and platforms
+        id: read
+        env:
+          FOLDERS: ${{ inputs.folders }}
+          PLATFORMS: ${{ inputs.platforms }}
+        run: |
+          echo "version=$(< VERSION)" >> $GITHUB_OUTPUT
+          echo "folders=$(jq -Rnc '[inputs | gsub("\\s"; "") | select(. != "")]' <<< "${FOLDERS}")" >> $GITHUB_OUTPUT
+          echo "platforms=$(jq -Rnc '[inputs | gsub("\\s"; "") | select(. != "")]' <<< "${PLATFORMS}")" >> $GITHUB_OUTPUT
+        shell: bash
+
+  build:
+    needs: prepare
+    strategy:
+      fail-fast: false
+      matrix:
+        folder: ${{ fromJSON(needs.prepare.outputs.folders) }}
+        platform: ${{ fromJSON(needs.prepare.outputs.platforms) }}
+    # amd64 and arm64 have native runners - anything else builds on amd64 using QEMU
+    runs-on: ${{ matrix.platform == 'linux/arm64' && 'ubuntu-24.04-arm' || 'ubuntu-24.04' }}
+    env:
+      NATIVE: ${{ matrix.platform == 'linux/amd64' || matrix.platform == 'linux/arm64' }}
+    steps:
+      -
+        name: Checkout code
+        uses: actions/checkout@v7
+      -
+        name: Set up QEMU
+        if: env.NATIVE != 'true'
+        uses: docker/setup-qemu-action@v4
+      -
+        name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+      -
+        name: Login to DockerHub
+        uses: docker/login-action@v4
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      -
+        name: Login to Quay.io Container Registry
+        uses: docker/login-action@v4
+        with:
+          registry: quay.io
+          username: ${{ secrets.QUAY_USERNAME || github.repository_owner }}
+          password: ${{ secrets.QUAY_TOKEN }}
+      -
+        name: Build and export
+        # tests run on native runners only - emulated platforms are slow and less reliable
+        if: ${{ !inputs.publish && env.NATIVE == 'true' }}
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          file: ./${{ matrix.folder }}/Dockerfile
+          build-args: |
+            BF_IMAGE=${{ github.event.repository.name }}
+            BF_VERSION=${{ needs.prepare.outputs.version }}
+          load: true
+          platforms: ${{ matrix.platform }}
+          tags: ${{ inputs.image }}:test
+      -
+        name: Run tests
+        if: ${{ !inputs.publish && env.NATIVE == 'true' }}
+        run: docker run --rm --entrypoint /test ${{ inputs.image }}:test
+      -
+        name: Build and push by digest
+        id: push
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          file: ./${{ matrix.folder }}/Dockerfile
+          build-args: |
+            BF_IMAGE=${{ github.event.repository.name }}
+            ${{ inputs.publish && 'BF_PUBLISHING=1' || '' }}
+            BF_VERSION=${{ needs.prepare.outputs.version }}
+          platforms: ${{ matrix.platform }}
+          outputs: type=image,"name=bfren/${{ inputs.image }},quay.io/bfren/${{ inputs.image }}",push-by-digest=true,name-canonical=true,push=true
+      -
+        name: Save digest
+        env:
+          DIGEST: ${{ steps.push.outputs.digest }}
+        run: mkdir -p digests && touch "digests/${DIGEST#sha256:}"
+      -
+        name: Upload digest
+        uses: actions/upload-artifact@v7
+        with:
+          name: digests-${{ matrix.folder }}-${{ strategy.job-index }}
+          path: digests/*
+          if-no-files-found: error
+          retention-days: 1
+
+  merge:
+    needs: [prepare, build]
+    strategy:
+      fail-fast: false
+      matrix:
+        folder: ${{ fromJSON(needs.prepare.outputs.folders) }}
+    runs-on: ubuntu-latest
+    steps:
+      -
+        name: Checkout code
+        uses: actions/checkout@v7
+      -
+        name: Download digests
+        uses: actions/download-artifact@v8
+        with:
+          path: ${{ runner.temp }}/digests
+          pattern: digests-${{ matrix.folder }}-*
+          merge-multiple: true
+      -
+        name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+      -
+        name: Login to DockerHub
+        uses: docker/login-action@v4
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      -
+        name: Login to Quay.io Container Registry
+        uses: docker/login-action@v4
+        with:
+          registry: quay.io
+          username: ${{ secrets.QUAY_USERNAME || github.repository_owner }}
+          password: ${{ secrets.QUAY_TOKEN }}
+      -
+        name: Create multi-platform images
+        env:
+          IMAGE: ${{ inputs.image }}
+          FOLDER: ${{ matrix.folder }}
+          TAGS: ${{ inputs.tags }}
+          LATEST: ${{ inputs.latest }}
+          LATEST_TAGS: ${{ inputs.latest-tags }}
+          PUBLISH: ${{ inputs.publish }}
+        run: |
+          # load version files as variables - later files win, so the folder's own files override the repository's
+          for file in VERSION* overlay/tmp/* "${FOLDER}"/* "${FOLDER}"/overlay/tmp/* ; do
+            if [[ -f "${file}" && "${file##*/}" =~ ^[A-Z0-9_]+$ ]] ; then export "${file##*/}=$(< "${file}")" ; fi
+          done
+
+          # fill in the tags, stopping if a variable has no value - development builds add -dev, and latest becomes dev
+          [ "${FOLDER}" != "${LATEST}" ] || TAGS+=$'\n'"${LATEST_TAGS}"
+          for var in $(envsubst --variables "${TAGS}") ; do
+            [ -n "${!var:-}" ] || { echo "No file for \$${var} - looked in ${FOLDER}, ${FOLDER}/overlay/tmp, overlay/tmp and the root" ; exit 1 ; }
+          done
+          tags=$(envsubst <<< "${TAGS}" | grep .)
+          [ "${PUBLISH}" = "true" ] || tags=$(sed -e 's/^latest$/dev/' -e '/^dev$/!s/$/-dev/' <<< "${tags}")
+          echo "${tags}"
+
+          # join the platform digests into one image with every tag, in each registry
+          digests=$(ls ${{ runner.temp }}/digests)
+          for image in bfren/${IMAGE} quay.io/bfren/${IMAGE} ; do
+            docker buildx imagetools create $(printf -- "-t ${image}:%s " ${tags}) $(printf "${image}@sha256:%s " ${digests})
+          done
+        shell: bash
