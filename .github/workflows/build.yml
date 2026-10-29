@@ -10,7 +10,8 @@ name: build
 #
 #   Tags can use ${FOLDER} and version files as variables: VERSION, VERSION_MAJOR and VERSION_MINOR from the repository,
 #   then any upper-case file in overlay/tmp, the folder, and the folder's overlay/tmp (e.g. ${ALPINE_REVISION}). The
-#   folder named in 'latest' also gets 'latest-tags'. Development builds add -dev to every tag, and latest becomes dev.
+#   folder named in 'default-folder' also gets 'default-tags'. Development builds add -dev to every tag, and latest
+#   becomes dev.
 
 on:
   workflow_call:
@@ -35,13 +36,13 @@ on:
         description: Tags for each folder, one per line, using ${FOLDER} and version file variables
         required: true
         type: string
-      latest:
-        description: The folder that also gets 'latest-tags'
+      default-folder:
+        description: The folder that also gets 'default-tags'
         required: false
         type: string
         default: ''
-      latest-tags:
-        description: Extra tags for the folder named in 'latest', one per line
+      default-tags:
+        description: Extra tags for the folder named in 'default-folder', one per line
         required: false
         type: string
         default: ''
@@ -207,8 +208,8 @@ jobs:
           IMAGE: ${{ inputs.image }}
           FOLDER: ${{ matrix.folder }}
           TAGS: ${{ inputs.tags }}
-          LATEST: ${{ inputs.latest }}
-          LATEST_TAGS: ${{ inputs.latest-tags }}
+          DEFAULT_FOLDER: ${{ inputs.default-folder }}
+          DEFAULT_TAGS: ${{ inputs.default-tags }}
           PUBLISH: ${{ inputs.publish }}
         run: |
           # load version files as variables - later files win, so the folder's own files override the repository's
@@ -217,7 +218,7 @@ jobs:
           done
 
           # fill in the tags, stopping if a variable has no value - development builds add -dev, and latest becomes dev
-          [ "${FOLDER}" != "${LATEST}" ] || TAGS+=$'\n'"${LATEST_TAGS}"
+          [ "${FOLDER}" != "${DEFAULT_FOLDER}" ] || TAGS+=$'\n'"${DEFAULT_TAGS}"
           for var in $(envsubst --variables "${TAGS}") ; do
             [ -n "${!var:-}" ] || { echo "No file for \$${var} - looked in ${FOLDER}, ${FOLDER}/overlay/tmp, overlay/tmp and the root" ; exit 1 ; }
           done

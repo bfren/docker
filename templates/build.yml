@@ -38,9 +38,9 @@ jobs:
         ${FOLDER}-${VERSION_MINOR}
         ${FOLDER}-${VERSION}
 
-      # optional: one folder that also gets latest-tags - leave out for images with several versions, so users choose
-      # latest: FOLDER
-      # latest-tags: |
+      # optional: one folder that also gets default-tags - leave out for images with several versions, so users choose
+      # default-folder: FOLDER
+      # default-tags: |
       #   latest
       #   ${VERSION_MAJOR}
       #   ${VERSION_MINOR}

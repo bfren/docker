@@ -74,8 +74,8 @@ One folder per Alpine version, each with an `ALPINE_REVISION` file. The newest v
         alpine${FOLDER}-${VERSION}
         alpine${ALPINE_REVISION}
         alpine${ALPINE_REVISION}-${VERSION}
-      latest: "3.24"
-      latest-tags: |
+      default-folder: "3.24"
+      default-tags: |
         latest
         ${VERSION_MAJOR}
         ${VERSION_MINOR}
