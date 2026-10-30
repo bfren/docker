@@ -1,6 +1,6 @@
 #!/bin/bash
 
-cd ..
+cd images
 
 for DIR in `ls`; do
 

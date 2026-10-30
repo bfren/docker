@@ -1,0 +1,5 @@
+{
+  "devDependencies": {
+    "@txikijs/types": "^26.6.0"
+  }
+}

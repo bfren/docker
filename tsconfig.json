@@ -1,0 +1,16 @@
+{
+    "compileOnSave": true,
+    "compilerOptions": {
+        "target": "es2025",
+        "rewriteRelativeImportExtensions": true,
+        "skipLibCheck": true,
+        "types": [
+            "@txikijs/types"
+        ],
+        "paths": {
+            "bf": [
+                "./images/alpine/overlay/etc/tjs/scripts/bf/index.ts"
+            ]
+        }
+    }
+}
