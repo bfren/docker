@@ -55,7 +55,7 @@ jobs:
           - "StrongId.Newtonsoft.Json"
           - "StrongId.Testing"
     steps:
-      - uses: actions/delete-package-versions@v5
+      - uses: seantis/delete-package-versions@main
         with:
           package-name: ${{ matrix.package }}
           package-type: "nuget"
