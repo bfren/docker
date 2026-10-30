@@ -20,6 +20,8 @@ jobs:
           - "apache"
           - "apache-php"
           - "aspnet"
+          - "baikal"
+          - "caddy-proxy"
           - "clamav"
           - "ftps"
           - "freescout"
