@@ -31,12 +31,26 @@ jobs:
           username: ${{ secrets.QUAY_USERNAME || github.repository_owner }}
           password: ${{ secrets.QUAY_TOKEN }}
       -
+        name: Show Docker Hub rate limit
+        # which limit applies to these credentials, and whether it is counted against the account or the runner's IP -
+        # a HEAD request does not count as a pull
+        env:
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+        run: |
+          TOKEN=$(curl -fsSL --user "${DOCKERHUB_USERNAME}:${DOCKERHUB_TOKEN}" "https://auth.docker.io/token?service=registry.docker.io&scope=repository:ratelimitpreview/test:pull" | jq -r .token)
+          curl -fsSI -H "Authorization: Bearer ${TOKEN}" https://registry-1.docker.io/v2/ratelimitpreview/test/manifests/latest | grep -i ratelimit || echo "No rate limit headers returned."
+      -
         name: Copy new releases
+        env:
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
         run: |
           set -euo pipefail
 
-          # skopeo copies in this job using the logins above (~/.docker/config.json) - every manifest it fetches from
-          # Docker Hub counts as a pull, so only the current release behind each floating tag is copied, once
+          # skopeo copies in this job - Quay.io uses the login above (~/.docker/config.json), Docker Hub is given its
+          # credentials explicitly as skopeo did not pick them up from there; every manifest fetched from Docker Hub
+          # counts as a pull, so only the current release behind each floating tag is copied, once
           command -v skopeo > /dev/null || { sudo apt-get update -q && sudo apt-get install -yq skopeo ; }
 
           # print the digest of the image at $1 (the hash of its exact manifest bytes), or nothing if it does not exist
@@ -58,7 +72,7 @@ jobs:
               echo "$1:${RELEASE} is up to date."
             else
               echo "Copying $1:${RELEASE} (${DIGEST})."
-              skopeo copy --all --preserve-digests "docker://docker.io/library/$1@${DIGEST}" "${TARGET}:${RELEASE}"
+              skopeo copy --all --preserve-digests --src-creds "${DOCKERHUB_USERNAME}:${DOCKERHUB_TOKEN}" "docker://docker.io/library/$1@${DIGEST}" "${TARGET}:${RELEASE}"
             fi
 
             # point the floating tag at the release - copied within Quay, so not a Docker Hub pull
