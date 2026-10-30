@@ -10,12 +10,6 @@
 [submodule "images/debian-s6"]
 	path = images/debian-s6
 	url = https://github.com/bfren/docker-debian-s6.git
-[submodule "images/apache"]
-	path = images/apache
-	url = https://github.com/bfren/docker-apache.git
-[submodule "images/apache-php"]
-	path = images/apache-php
-	url = https://github.com/bfren/docker-apache-php.git
 [submodule "images/aspnet"]
 	path = images/aspnet
 	url = https://github.com/bfren/docker-aspnet.git
