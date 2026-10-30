@@ -68,11 +68,11 @@ Rules:
   | Fact                                | Source                                                              |
   | ----------------------------------- | ------------------------------------------------------------------- |
   | Health-check timing                 | `HEALTHCHECK` line in `Dockerfile.esh`                              |
-  | Environment variables and defaults  | `ENV` block in `Dockerfile.esh`, and `overlay/etc/bf/init.d/*.nu`   |
+  | Environment variables and defaults  | `ENV` block in `Dockerfile.esh`, and `overlay/etc/bf/init.d/*`      |
   | Published tags and platforms        | `.github/workflows/publish.yml`                                     |
   | Supported OS / application versions | `generate-dockerfiles.sh` and the per-version directories           |
   | Base image and pinned versions      | `generate-dockerfiles.sh` (`BASE_VERSION`, `ALPINE_BRANCH`, …)      |
-  | Commands and modules                | `overlay/etc/nu/scripts/<module>/` and `overlay/usr/bin/bf/`        |
+  | Commands and modules                | `overlay/etc/tjs/scripts/bf/` and `overlay/usr/bin/bf/`             |
 
 * If a claim can't be verified from the code (e.g. a package's behaviour on an older Alpine), say so or leave it out.
 * British English, short sentences, hyphens (` - `) rather than em dashes.
@@ -80,13 +80,28 @@ Rules:
 
 ## Code conventions
 
-* Nushell 0.116+, functional style: small composable functions.
-* Run externals through `bf handle` (e.g. `{ ^cmd } | bf handle --code-only`, `--ignore-error`), not raw `complete`.
-* Remember that a failing external (non-zero exit) aborts a Nushell script - `pidof`, `grep` etc. exit 1 when they find
-  nothing.
-* Tests live in `overlay/etc/nu/scripts/tests/*.nu`, exported from `tests/mod.nu`, named `<function>__<behaviour>`.
-  `/test` runs them **in parallel in one container**, so each test must be self-contained: use temporary directories,
-  never modify shared files (e.g. `/etc/nginx`), and never depend on which processes are running - stub commands on
-  `PATH` instead.
+Images are being migrated from Nushell to [txiki.js](https://github.com/saghul/txiki.js) - `alpine` is done; the
+Nushell originals (in `../docker`) are the specification, and `python3 tools/parity.py ../docker images [image]` reports
+what is left to port.
+
+* TypeScript in `overlay/etc/tjs/scripts`, compiled to `.js` alongside it with `tsc -p tsconfig.json` from this
+  repository (commit both). Functional style: small composable functions, JSDoc on every export.
+* **Only `bf/sys.ts` uses the runtime** (`tjs.*`, `tjs:*`) - everything else, in every image, goes through `bf.sys`, so
+  moving to another runtime means rewriting that one file.
+* Run externals through `bf.handle([...])` (e.g. `{ codeOnly: true }`, `{ ignoreError: true }`), not `sys.spawn`.
+  `bf.write.error()` throws, so use it to stop on failure.
+* txiki.js has no `Intl`, so `localeCompare` options are ignored - use `naturalCompare` from `bf/util`.
+* Executables are `overlay/usr/bin/bf/<name>.ts` with a `#!/bin/tjsh` shebang; `bf-install` removes the `.ts` and the
+  `.js` extension. `tjsh` keeps the caller's environment but values in `/etc/bf/env.d` override it (so
+  `BF_DEBUG=1 cmd` has no effect if `env.d` has `BF_DEBUG=0`). `bf-install` runs before `tjsh` is installed, and `/init`
+  must store the incoming environment without `env.d` replacing it, so both run with
+  `tjs run --import-map /etc/tjs/map.json` instead.
+* Tests live in `overlay/etc/tjs/scripts/tests/<module>.ts`: every exported function is a test, named
+  `<function>__<behaviour>` after the Nushell test it ports. `/test` runs them **in parallel in one process**, so each
+  test must be self-contained: use temporary directories, never modify shared files (e.g. `/etc/nginx`), and never
+  depend on which processes are running - stub commands on `PATH` instead. Because the process is shared:
+  * change `sys.env` or `console` only synchronously, with `withEnv` / `capture` from `tests/lib/capture.ts`
+  * run anything that reads or writes the whole environment, changes the working directory, or needs its own `PATH`
+    in a child process with `runScript`
 * Test with `./test.nu [version]` in each image repository (`./test.nu --all` tests every version); test both ends
   of the supported version range when behaviour depends on the OS version.

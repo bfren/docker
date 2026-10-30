@@ -22,6 +22,9 @@
 [submodule "images/baikal"]
 	path = images/baikal
 	url = https://github.com/bfren/docker-baikal.git
+[submodule "images/caddy-proxy"]
+	path = images/caddy-proxy
+	url = https://github.com/bfren/docker-caddy-proxy.git
 [submodule "images/clamav"]
 	path = images/clamav
 	url = https://github.com/bfren/docker-clamav.git
@@ -40,9 +43,6 @@
 [submodule "images/nginx-php"]
 	path = images/nginx-php
 	url = https://github.com/bfren/docker-nginx-php.git
-[submodule "images/nginx-proxy"]
-	path = images/nginx-proxy
-	url = https://github.com/bfren/docker-nginx-proxy.git
 [submodule "images/nginx-webdav"]
 	path = images/nginx-webdav
 	url = https://github.com/bfren/docker-nginx-webdav.git
