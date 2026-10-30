@@ -1,0 +1,43 @@
+name: Mirror base images to Quay.io
+
+# Copy the current official Alpine and Debian slim releases from Docker Hub to Quay.io, so image builds do not hit
+# Docker Hub's pull rate limits - see tools/mirror-base-images.sh.
+
+on:
+  schedule:
+    - cron:  "0 3 * * *"
+  workflow_dispatch:
+
+jobs:
+  mirror:
+    runs-on: ubuntu-latest
+    steps:
+      -
+        name: Checkout code
+        uses: actions/checkout@v7
+      -
+        name: Login to Quay.io Container Registry
+        uses: docker/login-action@v4
+        with:
+          registry: quay.io
+          username: ${{ secrets.QUAY_USERNAME || github.repository_owner }}
+          password: ${{ secrets.QUAY_TOKEN }}
+      -
+        name: Show Docker Hub rate limit
+        # which limit applies to these credentials, and whether it is counted against the account or the runner's IP -
+        # a HEAD request does not count as a pull
+        env:
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+        run: |
+          TOKEN=$(curl -fsSL --user "${DOCKERHUB_USERNAME}:${DOCKERHUB_TOKEN}" "https://auth.docker.io/token?service=registry.docker.io&scope=repository:ratelimitpreview/test:pull" | jq -r .token)
+          # not -f: when the limit has been reached the response is a 429, but it still has the headers
+          curl -sSI -H "Authorization: Bearer ${TOKEN}" https://registry-1.docker.io/v2/ratelimitpreview/test/manifests/latest | grep -i ratelimit || echo "No rate limit headers returned."
+      -
+        name: Copy new releases
+        env:
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+        run: |
+          command -v skopeo > /dev/null || { sudo apt-get update -q && sudo apt-get install -yq skopeo ; }
+          bash tools/mirror-base-images.sh
