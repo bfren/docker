@@ -39,7 +39,8 @@ jobs:
           DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
         run: |
           TOKEN=$(curl -fsSL --user "${DOCKERHUB_USERNAME}:${DOCKERHUB_TOKEN}" "https://auth.docker.io/token?service=registry.docker.io&scope=repository:ratelimitpreview/test:pull" | jq -r .token)
-          curl -fsSI -H "Authorization: Bearer ${TOKEN}" https://registry-1.docker.io/v2/ratelimitpreview/test/manifests/latest | grep -i ratelimit || echo "No rate limit headers returned."
+          # not -f: when the limit has been reached the response is a 429, but it still has the headers
+          curl -sSI -H "Authorization: Bearer ${TOKEN}" https://registry-1.docker.io/v2/ratelimitpreview/test/manifests/latest | grep -i ratelimit || echo "No rate limit headers returned."
       -
         name: Copy new releases
         env:
