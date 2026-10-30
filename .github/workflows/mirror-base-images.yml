@@ -1,28 +1,20 @@
 name: Mirror base images to Quay.io
 
 # Copy the current official Alpine and Debian slim releases from Docker Hub to Quay.io, so image builds do not hit
-# Docker Hub's pull rate limits. The images are copied unchanged, so they keep the same digests.
+# Docker Hub's pull rate limits - see tools/mirror-base-images.sh.
 
 on:
   schedule:
     - cron:  "0 3 * * *"
   workflow_dispatch:
 
-env:
-  # Alpine minor and Debian major versions used by bfren images - keep in step with docker-alpine and docker-debian
-  ALPINE_MINORS: "3.20 3.21 3.22 3.23 3.24"
-  DEBIAN_MAJORS: "12 13"
-
 jobs:
   mirror:
     runs-on: ubuntu-latest
     steps:
       -
-        name: Login to DockerHub
-        uses: docker/login-action@v4
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+        name: Checkout code
+        uses: actions/checkout@v7
       -
         name: Login to Quay.io Container Registry
         uses: docker/login-action@v4
@@ -47,46 +39,5 @@ jobs:
           DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
           DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
         run: |
-          set -euo pipefail
-
-          # skopeo copies in this job - Quay.io uses the login above (~/.docker/config.json), Docker Hub is given its
-          # credentials explicitly as skopeo did not pick them up from there; every manifest fetched from Docker Hub
-          # counts as a pull, so only the current release behind each floating tag is copied, once
           command -v skopeo > /dev/null || { sudo apt-get update -q && sudo apt-get install -yq skopeo ; }
-
-          # print the digest of the image at $1 (the hash of its exact manifest bytes), or nothing if it does not exist
-          MANIFEST=$(mktemp)
-          digest() { skopeo inspect --raw "$1" > "${MANIFEST}" 2> /dev/null || return 0 ; echo "sha256:$(sha256sum < "${MANIFEST}" | cut -c1-64)" ; }
-
-          # copy the release behind floating tag $2 (e.g. 3.24) of docker.io/library/$1 to quay.io/bfren-bin/$1:
-          #   $3 - filter for Docker Hub's tag list that includes the release tags (e.g. '3.24.')
-          #   $4 - regex matching release tags (e.g. 3.24.3)
-          # Docker Hub's tag API is not a pull, so finding the release does not count towards the rate limit
-          mirror() {
-            HUB="https://hub.docker.com/v2/repositories/library/$1/tags"
-            DIGEST=$(curl -fsSL "${HUB}/$2" | jq -r .digest)
-            RELEASE=$(curl -fsSL "${HUB}?page_size=100&name=$3" | jq -r --arg d "${DIGEST}" '.results[] | select(.digest == $d) | .name' | grep -E "$4" | head -1 || true)
-            if [ -z "${RELEASE}" ] ; then echo "Unable to find the release tag behind $1:$2." >&2 ; exit 1 ; fi
-
-            TARGET="docker://quay.io/bfren-bin/$1"
-            if [ "$(digest "${TARGET}:${RELEASE}")" = "${DIGEST}" ] ; then
-              echo "$1:${RELEASE} is up to date."
-            else
-              echo "Copying $1:${RELEASE} (${DIGEST})."
-              skopeo copy --all --preserve-digests --src-creds "${DOCKERHUB_USERNAME}:${DOCKERHUB_TOKEN}" "docker://docker.io/library/$1@${DIGEST}" "${TARGET}:${RELEASE}"
-            fi
-
-            # point the floating tag at the release - copied within Quay, so not a Docker Hub pull
-            if [ "$(digest "${TARGET}:$2")" != "${DIGEST}" ] ; then
-              echo "Pointing $1:$2 at ${RELEASE}."
-              skopeo copy --all --preserve-digests "${TARGET}:${RELEASE}" "${TARGET}:$2"
-            fi
-          }
-
-          for MINOR in ${ALPINE_MINORS} ; do
-            mirror alpine "${MINOR}" "${MINOR}." "^${MINOR//./\\.}\.[0-9]+$"
-          done
-
-          for MAJOR in ${DEBIAN_MAJORS} ; do
-            mirror debian "${MAJOR}-slim" "${MAJOR}." "^${MAJOR}\.[0-9]+-slim$"
-          done
+          bash tools/mirror-base-images.sh
