@@ -8,6 +8,23 @@ versions) in step with the images.
 On a new machine, clone `index` then run `./clone-all.sh` to clone the images alongside it (`--pull` also pulls
 clean `main` branches). The image list comes from `docker-index.code-workspace` - add new images there.
 
+## Project state
+
+`PROJECT_STATE.md` in this repository is the handoff between sessions. It is imported below, so it is loaded at the
+start of every session. Before ending any session that changed code or decisions (in `index` or any image), rewrite
+it:
+
+* **Last session** - what was done and the decisions made, with the reasoning. Replace this section each time; don't
+  add to it.
+* **Next** - tasks in order. Keep unfinished ones, remove finished ones, add new ones.
+* **Open questions** - remove them once answered.
+
+Keep an older decision only while an unfinished task depends on it. A decision that becomes a lasting convention moves
+into this file (`CLAUDE.md`) instead. Then ask the user to commit and push `index`, so the next session - on any
+machine - starts from it.
+
+@PROJECT_STATE.md
+
 ## Image dependencies and release order
 
 ```plain
@@ -28,12 +45,40 @@ Release in this order: **alpine → debian → alpine-s6 → debian-s6 → downs
   "built against an unreleased base" - change it to the released version and re-run `generate-dockerfiles.sh` before
   releasing.
 
+## Changelog
+
+Images with a `CHANGELOG.md` (`../alpine` is the reference) follow [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/).
+
+* One `## [X.Y.Z] - YYYY-MM-DD` section per release, newest first, matching `VERSION`. Until the release is tagged use
+  `- Unreleased` instead of the date, and set the date when tagging.
+* Build each entry from `git log` and `git diff` since the last `vX.Y.Z` tag - read the diff, not just commit
+  messages, which can be vague or out of date.
+* Group under `Added`, `Changed`, `Deprecated`, `Removed`, `Fixed`, `Security`, in that order, leaving out empty
+  groups. Prefix breaking changes (the reason for a major bump) with `**Breaking:**`.
+* Write for people using the image: what changed and how it affects them. Leave out build plumbing that has no effect
+  on the published image (CI experiments, cache tests, branch pointers).
+* When the base image changes, say which version it moved to and link to its changelog rather than repeating it.
+* End with a compare link for each version:
+  `[X.Y.Z]: https://github.com/bfren/docker-<name>/compare/vPREVIOUS...vX.Y.Z`.
+* To add a changelog to a new image, start it at the version being released, with changes since the last tag.
+
 ## Versions
 
 * `VERSION`, `VERSION_MAJOR` and `VERSION_MINOR` in each image repository. `bump.sh` (run from an image directory)
   bumps the revision.
-* Each image's `.github/workflows/dev.yml` pushes the same tags as `publish.yml` with a `-dev` suffix (`latest` becomes
-  `dev`). After changing tags in `publish.yml`, run `python3 index/tools/sync_dev_tags.py --apply` from the parent folder.
+* Every image builds with the reusable workflow `index/.github/workflows/build.yml`, called from one small
+  `<image>/.github/workflows/build.yml` that lists its folders, platforms and tags once. `index/templates/README.md` is
+  the full guide - read it before changing tags.
+  * Branch pushes are development builds: the tests run, `-dev` is added to every tag and `latest` becomes `dev`.
+    Never write `-dev` in a tag.
+  * Published releases push release images with `BF_PUBLISHING=1`, which removes the tests.
+  * Tags can use `${FOLDER}` and version files as variables (`${VERSION}`, `${VERSION_MAJOR}`, `${ALPINE_REVISION}`…).
+    The folder named in `default-folder` also gets `default-tags` - only Alpine, Alpine S6, Debian, Debian S6, Nginx,
+    PHP, ClamAV and Redis have one (giving them `latest`), plus Baïkal, whose PHP 8.4 image also gets the
+    `baikalA.B.C` tags. The rest have no `latest` and users choose a version.
+  * Callers use `bfren/docker/.github/workflows/build.yml@shared-build` until that branch is merged into `main`.
+* Every image has moved - none has `dev.yml` or `publish.yml` any more. A new image copies
+  `index/templates/build.yml` and follows "Moving an image to the workflow" in `index/templates/README.md`.
 * Major: breaking changes. Minor: new features or behaviour. Revision: fixes, and rebuilds for upstream updates (e.g. a
   new base image or BusyBox version with no behaviour change).
 
@@ -69,7 +114,7 @@ Rules:
   | ----------------------------------- | ------------------------------------------------------------------- |
   | Health-check timing                 | `HEALTHCHECK` line in `Dockerfile.esh`                              |
   | Environment variables and defaults  | `ENV` block in `Dockerfile.esh`, and `overlay/etc/bf/init.d/*.nu`   |
-  | Published tags and platforms        | `.github/workflows/publish.yml`                                     |
+  | Published tags and platforms        | `.github/workflows/build.yml`, or `publish.yml` if not yet moved    |
   | Supported OS / application versions | `generate-dockerfiles.sh` and the per-version directories           |
   | Base image and pinned versions      | `generate-dockerfiles.sh` (`BASE_VERSION`, `ALPINE_BRANCH`, …)      |
   | Commands and modules                | `overlay/etc/nu/scripts/<module>/` and `overlay/usr/bin/bf/`        |

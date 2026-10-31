@@ -1,0 +1,58 @@
+# Copy to <image>/.github/workflows/build.yml - see README.md in this folder.
+# It replaces dev.yml and publish.yml: branch pushes build '-dev' images, and published releases build release images.
+
+name: build
+
+on:
+  push:
+    branches: ['**']
+    tags-ignore: ['**']
+  release:
+    types: [published]
+  workflow_dispatch:
+
+# one run per branch at a time - a newer push cancels the older run, so it cannot finish last and overwrite the
+# newer images
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    uses: bfren/docker/.github/workflows/build.yml@shared-build
+    with:
+      # published as bfren/<image> and quay.io/bfren/<image>
+      image: IMAGE
+
+      # one folder per line, each containing a Dockerfile - leave out for a single Dockerfile in the root
+      folders: |
+        FOLDER
+
+      # one platform per line - amd64 and arm64 build natively, anything else (e.g. linux/arm/v7) is slower
+      platforms: |
+        linux/amd64
+        linux/arm64
+
+      # optional: a script to run after the tests, given the test image's tag - e.g. to start the image under S6
+      # smoke-test: ./smoke.sh
+
+      # tags for each folder, one per line - use ${FOLDER}, ${VERSION}, ${VERSION_MAJOR}, ${VERSION_MINOR}, and the
+      # name of any version file (e.g. ${ALPINE_REVISION}) - do not add -dev, it is added for development builds
+      tags: |
+        ${FOLDER}
+        ${FOLDER}-${VERSION_MAJOR}
+        ${FOLDER}-${VERSION_MINOR}
+        ${FOLDER}-${VERSION}
+
+      # optional: only for images with several versions where one should also be 'latest' - see README.md
+      # default-folder: FOLDER
+      # default-tags: |
+      #   latest
+      #   ${VERSION_MAJOR}
+      #   ${VERSION_MINOR}
+      #   ${VERSION}
+
+    secrets:
+      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+      DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+      QUAY_TOKEN: ${{ secrets.QUAY_TOKEN }}

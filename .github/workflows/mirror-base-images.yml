@@ -1,7 +1,7 @@
 name: Mirror base images to Quay.io
 
-# Copy the current official Alpine and Debian slim releases from Docker Hub to Quay.io, so image builds do not hit
-# Docker Hub's pull rate limits - see tools/mirror-base-images.sh.
+# Copy the current official Alpine and Debian slim releases, and the Caddy builder, from Docker Hub to Quay.io, so image
+# builds do not hit Docker Hub's pull rate limits - see tools/mirror-base-images.sh.
 
 on:
   schedule:
