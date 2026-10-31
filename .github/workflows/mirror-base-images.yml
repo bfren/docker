@@ -1,33 +1,20 @@
 name: Mirror base images to Quay.io
 
-# Copy the official Alpine and Debian slim images, and the Caddy builder image, from Docker Hub to Quay.io, so image
-# builds do not hit Docker Hub's pull rate limits. The images are copied unchanged, so they keep the same digests.
+# Copy the current official Alpine and Debian slim releases, and the Caddy builder, from Docker Hub to Quay.io, so image
+# builds do not hit Docker Hub's pull rate limits - see tools/mirror-base-images.sh.
 
 on:
   schedule:
     - cron:  "0 3 * * *"
   workflow_dispatch:
 
-env:
-  # Alpine minor and Debian major versions used by bfren images - keep in step with docker-alpine and docker-debian
-  ALPINE_MINORS: "3.20 3.21 3.22 3.23 3.24"
-  DEBIAN_MAJORS: "12 13"
-  # Caddy builder tags used by docker-caddy-proxy (CADDY_BUILDER in its Dockerfile) - keep in step with it
-  CADDY_BUILDERS: "2.11-builder-alpine"
-
 jobs:
   mirror:
     runs-on: ubuntu-latest
     steps:
       -
-        name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v4
-      -
-        name: Login to DockerHub
-        uses: docker/login-action@v4
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+        name: Checkout code
+        uses: actions/checkout@v7
       -
         name: Login to Quay.io Container Registry
         uses: docker/login-action@v4
@@ -36,44 +23,21 @@ jobs:
           username: ${{ secrets.QUAY_USERNAME || github.repository_owner }}
           password: ${{ secrets.QUAY_TOKEN }}
       -
-        name: Copy new and changed tags
+        name: Show Docker Hub rate limit
+        # which limit applies to these credentials, and whether it is counted against the account or the runner's IP -
+        # a HEAD request does not count as a pull
+        env:
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
         run: |
-          set -euo pipefail
-
-          # print 'tag digest' for each tag of docker.io/library/$1 whose name contains $2 and matches regex $3 - from
-          # Docker Hub's tag list, which is not a pull so does not count towards the rate limit; grep fails if no tags
-          # match, and a filter matching more than one page of tags fails rather than silently missing some
-          tags() {
-            JSON=$(curl -fsSL "https://hub.docker.com/v2/repositories/library/$1/tags?page_size=100&name=$2")
-            if [ "$(echo "${JSON}" | jq -r .next)" != "null" ] ; then echo "Too many $1 tags match '$2'." >&2 ; exit 1 ; fi
-            echo "${JSON}" | jq -r '.results[] | "\(.name) \(.digest)"' | grep -E "$3"
-          }
-
-          # copy each 'tag digest' read from stdin from docker.io/library/$1 to quay.io/bfren-bin/$1, unless it is there
-          copy() {
-            while read -r TAG DIGEST ; do
-              TARGET="quay.io/bfren-bin/$1:${TAG}"
-              CURRENT=$(docker buildx imagetools inspect "${TARGET}" --format "{{json .Manifest}}" 2>/dev/null | jq -r .digest || true)
-              if [ "${CURRENT}" = "${DIGEST}" ] ; then
-                echo "$1:${TAG} is up to date."
-              else
-                echo "Copying $1:${TAG} (${DIGEST})."
-                docker buildx imagetools create --tag "${TARGET}" "docker.io/library/$1@${DIGEST}"
-              fi
-            done
-          }
-
-          # Alpine: the minor tag (e.g. 3.24) and every patch release (e.g. 3.24.3)
-          for MINOR in ${ALPINE_MINORS} ; do
-            tags alpine "${MINOR}" "^${MINOR//./\\.}(\.[0-9]+)? " | copy alpine
-          done
-
-          # Debian: the slim major tag (e.g. 13-slim) and every slim point release (e.g. 13.7-slim)
-          for MAJOR in ${DEBIAN_MAJORS} ; do
-            { tags debian "${MAJOR}." "^${MAJOR}\.[0-9]+-slim " ; tags debian "${MAJOR}-slim" "^${MAJOR}-slim " ; } | copy debian
-          done
-
-          # Caddy: each builder tag exactly (e.g. 2.11-builder-alpine)
-          for TAG in ${CADDY_BUILDERS} ; do
-            tags caddy "${TAG}" "^${TAG//./\\.} " | copy caddy
-          done
+          TOKEN=$(curl -fsSL --user "${DOCKERHUB_USERNAME}:${DOCKERHUB_TOKEN}" "https://auth.docker.io/token?service=registry.docker.io&scope=repository:ratelimitpreview/test:pull" | jq -r .token)
+          # not -f: when the limit has been reached the response is a 429, but it still has the headers
+          curl -sSI -H "Authorization: Bearer ${TOKEN}" https://registry-1.docker.io/v2/ratelimitpreview/test/manifests/latest | grep -i ratelimit || echo "No rate limit headers returned."
+      -
+        name: Copy new releases
+        env:
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+        run: |
+          command -v skopeo > /dev/null || { sudo apt-get update -q && sudo apt-get install -yq skopeo ; }
+          bash tools/mirror-base-images.sh
