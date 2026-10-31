@@ -69,6 +69,8 @@ Images with a `CHANGELOG.md` (`../alpine` is the reference) follow [Keep a Chang
 * Every image builds with the reusable workflow `index/.github/workflows/build.yml`, called from one small
   `<image>/.github/workflows/build.yml` that lists its folders, platforms and tags once. `index/templates/README.md` is
   the full guide - read it before changing tags.
+  * Builds push to Quay.io only, and the merge job copies the finished image to Docker Hub once - per-platform jobs
+    pushing to Docker Hub hit its rate limit (429) when many images built at once.
   * Branch pushes are development builds: the tests run, `-dev` is added to every tag and `latest` becomes `dev`.
     Never write `-dev` in a tag.
   * Published releases push release images with `BF_PUBLISHING=1`, which removes the tests.
