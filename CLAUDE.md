@@ -28,22 +28,41 @@ Release in this order: **alpine → debian → alpine-s6 → debian-s6 → downs
   "built against an unreleased base" - change it to the released version and re-run `generate-dockerfiles.sh` before
   releasing.
 
+## Changelog
+
+Images with a `CHANGELOG.md` (`../alpine` is the reference) follow [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/).
+
+* One `## [X.Y.Z] - YYYY-MM-DD` section per release, newest first, matching `VERSION`. Until the release is tagged use
+  `- Unreleased` instead of the date, and set the date when tagging.
+* Build each entry from `git log` and `git diff` since the last `vX.Y.Z` tag - read the diff, not just commit
+  messages, which can be vague or out of date.
+* Group under `Added`, `Changed`, `Deprecated`, `Removed`, `Fixed`, `Security`, in that order, leaving out empty
+  groups. Prefix breaking changes (the reason for a major bump) with `**Breaking:**`.
+* Write for people using the image: what changed and how it affects them. Leave out build plumbing that has no effect
+  on the published image (CI experiments, cache tests, branch pointers).
+* When the base image changes, say which version it moved to and link to its changelog rather than repeating it.
+* End with a compare link for each version:
+  `[X.Y.Z]: https://github.com/bfren/docker-<name>/compare/vPREVIOUS...vX.Y.Z`.
+* To add a changelog to a new image, start it at the version being released, with changes since the last tag.
+
 ## Versions
 
 * `VERSION`, `VERSION_MAJOR` and `VERSION_MINOR` in each image repository. `bump.sh` (run from an image directory)
   bumps the revision.
-* Images are moving to the reusable workflow `index/.github/workflows/build.yml`, which builds each platform on its own
-  runner (amd64 and arm64 natively, others with QEMU) and joins them into one multi-platform image. An image using it
-  has one `.github/workflows/build.yml` (instead of `dev.yml` and `publish.yml`) that runs on branch pushes and
-  releases, and lists its folders, platforms and tags once. Tags can use `${FOLDER}` and version files as variables
-  (`${VERSION}`, `${VERSION_MAJOR}`, `${ALPINE_REVISION}`…), and the folder named in `default-folder` also gets
-  `default-tags`. Development builds add `-dev` to every tag (`latest` becomes `dev`). An image with several versions
-  has a `default-folder` only when one version should also be `latest` (Alpine, Alpine S6, Debian, Debian S6, Nginx and
-  PHP); the rest leave it out, so users choose a version. Alpine is the first. To move an image, follow
-  `index/templates/README.md` and copy `index/templates/build.yml`.
-* In images not yet moved, `.github/workflows/dev.yml` pushes the same tags as `publish.yml` with a `-dev` suffix
-  (`latest` becomes `dev`). After changing tags in `publish.yml`, run `python3 index/tools/sync_dev_tags.py --apply`
-  from the parent folder.
+* Every image builds with the reusable workflow `index/.github/workflows/build.yml`, called from one small
+  `<image>/.github/workflows/build.yml` that lists its folders, platforms and tags once. `index/templates/README.md` is
+  the full guide - read it before changing tags.
+  * Branch pushes are development builds: the tests run, `-dev` is added to every tag and `latest` becomes `dev`.
+    Never write `-dev` in a tag.
+  * Published releases push release images with `BF_PUBLISHING=1`, which removes the tests.
+  * Tags can use `${FOLDER}` and version files as variables (`${VERSION}`, `${VERSION_MAJOR}`, `${ALPINE_REVISION}`…).
+    The folder named in `default-folder` also gets `default-tags` - only Alpine, Alpine S6, Debian, Debian S6, Nginx
+    and PHP have one, so the rest have no `latest` and users choose a version.
+  * Callers use `bfren/docker/.github/workflows/build.yml@shared-build` until that branch is merged into `main`.
+* Moved so far: `alpine` and `alpine-s6`. The rest still have `dev.yml` and `publish.yml` - move an image by copying
+  `index/templates/build.yml` and following "Moving an image to the workflow" in `index/templates/README.md`. Until it
+  is moved, keep its `dev.yml` tags the same as `publish.yml` with a `-dev` suffix (`sync_dev_tags.py` has been
+  deleted on this branch).
 * Major: breaking changes. Minor: new features or behaviour. Revision: fixes, and rebuilds for upstream updates (e.g. a
   new base image or BusyBox version with no behaviour change).
 
