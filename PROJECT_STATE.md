@@ -15,9 +15,15 @@ Done - all committed and pushed, with green dev builds:
 * `index` tools fixed: `update.sh` never loses work, `clone-all.sh` skips `bin/`, `test.nu` exits 1 on failure and
   removes its containers.
 
+Done since - uncommitted:
+
+* `update.sh` skips a repository whose `git fetch` fails and carries on, instead of stopping - without a fresh fetch
+  the squash-merge check could use stale refs.
+
 Decisions:
 
-* **Downstream images pin `-dev` bases until release** - the bases are not released yet. Needed by Next 2.
+* **Downstream images pin `-dev` bases until release** - the bases are not released yet. Needed by Next 3.
+* **Merge `shared-build` before releasing** - releases should build from the workflow on `main`.
 * **Build on Quay.io, copy to Docker Hub once** - per-platform jobs hit Docker Hub's rate limit (429) when many images
   built at once.
 * **Newer pushes cancel older runs** - an older caddy-proxy run finished last and overwrote the newer `-dev` images.
@@ -26,17 +32,16 @@ Decisions:
 
 ## Next
 
-1. Release in order: alpine → debian → alpine-s6 → debian-s6 → the downstream images (bases first).
-2. For each downstream image, replace the `-dev` base pin with the released version - `BASE_VERSION` in
+1. Merge `shared-build` into `main` in `index`, then point the image workflows, `templates/build.yml` and `CLAUDE.md`
+   at `@main`.
+2. Release in order: alpine → debian → alpine-s6 → debian-s6 → the downstream images (bases first).
+3. For each downstream image, replace the `-dev` base pin with the released version - `BASE_VERSION` in
    `generate-dockerfiles.sh` (then re-run it), or in the Dockerfile itself for caddy-proxy, freshrss, ftps,
    nginx-webdav, samba, send and wireguard - and set the changelog date when tagging.
-3. Merge `shared-build` into `main` in `index`, then point the image workflows, `templates/build.yml` and `CLAUDE.md`
-   at `@main`.
 
 ## Open questions
 
 * Delete `test-read-file.yml` and `container-packages-cleanup.yml`? Nothing uses them - nothing pushes to ghcr.io.
 * Mirror the BuildKit and QEMU (binfmt) images to Quay.io? Every build job still pulls them from Docker Hub.
-* `update.sh` stops at the first repository whose `git fetch` fails - skip it and carry on instead?
 * Squash-only merges were checked on docker-nginx only - assumed the same everywhere.
 * `php*-imap` is not packaged for PHP 8.4 and 8.5 on Alpine 3.24, but is in wordpress's `PHP_EXT` - does it matter?
