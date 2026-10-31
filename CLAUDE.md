@@ -10,8 +10,9 @@ clean `main` branches). The image list comes from `docker-index.code-workspace` 
 
 ## Project state
 
-`PROJECT_STATE.md` in this repository is a snapshot of where the whole ecosystem is - read it at the start of a
-session. Before ending any session that changed code or decisions (in `index` or any image), update it:
+`PROJECT_STATE.md` in this repository is a snapshot of where the whole ecosystem is. It is imported below, so it is
+loaded at the start of every session. Before ending any session that changed code or decisions (in `index` or any
+image), update it:
 
 * **What's built** - the current state, not the history.
 * **Key decisions** - each with the reasoning, so it is not re-argued later.
@@ -19,6 +20,8 @@ session. Before ending any session that changed code or decisions (in `index` or
 * **Open questions** - anything undecided or unchecked.
 
 Keep it a concise snapshot, not a changelog: replace what has changed, and remove what is done or no longer true.
+
+@PROJECT_STATE.md
 
 ## Image dependencies and release order
 
