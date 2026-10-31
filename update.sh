@@ -36,7 +36,11 @@ for DIR in "${PARENT_DIR}"/*/ ; do
     fi
 
     echo "${NAME} .. prune"
-    git -C "${DIR}" fetch --prune --quiet
+    # without a fresh fetch the squash-merge check could use stale refs, so skip the repository and carry on
+    if ! git -C "${DIR}" fetch --prune --quiet ; then
+        echo "${NAME} .. skipped - fetch failed"
+        continue
+    fi
 
     # -d refuses to delete a branch with commits that are not merged, so unpushed work is kept
     CURRENT=$(git -C "${DIR}" branch --show-current)
