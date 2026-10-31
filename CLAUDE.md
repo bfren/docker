@@ -10,16 +10,18 @@ clean `main` branches). The image list comes from `docker-index.code-workspace` 
 
 ## Project state
 
-`PROJECT_STATE.md` in this repository is a snapshot of where the whole ecosystem is. It is imported below, so it is
-loaded at the start of every session. Before ending any session that changed code or decisions (in `index` or any
-image), update it:
+`PROJECT_STATE.md` in this repository is the handoff between sessions. It is imported below, so it is loaded at the
+start of every session. Before ending any session that changed code or decisions (in `index` or any image), rewrite
+it:
 
-* **What's built** - the current state, not the history.
-* **Key decisions** - each with the reasoning, so it is not re-argued later.
-* **What's next** - the next steps, in order.
-* **Open questions** - anything undecided or unchecked.
+* **Last session** - what was done and the decisions made, with the reasoning. Replace this section each time; don't
+  add to it.
+* **Next** - tasks in order. Keep unfinished ones, remove finished ones, add new ones.
+* **Open questions** - remove them once answered.
 
-Keep it a concise snapshot, not a changelog: replace what has changed, and remove what is done or no longer true.
+Keep an older decision only while an unfinished task depends on it. A decision that becomes a lasting convention moves
+into this file (`CLAUDE.md`) instead. Then ask the user to commit and push `index`, so the next session - on any
+machine - starts from it.
 
 @PROJECT_STATE.md
 
