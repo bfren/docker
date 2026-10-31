@@ -61,7 +61,7 @@ One folder per Alpine version, each with an `ALPINE_REVISION` file. The newest v
 ```yaml
       image: alpine
       folders: |
-        3.15
+        3.20
         …
         3.24
       platforms: |
@@ -83,8 +83,8 @@ One folder per Alpine version, each with an `ALPINE_REVISION` file. The newest v
         ${VERSION}
 ```
 
-For 3.24 gives `alpine3.24`, `alpine3.24-3`, `alpine3.24-3.5`, `alpine3.24-3.5.1`, `alpine3.24.2`,
-`alpine3.24.2-3.5.1`, then `latest`, `3`, `3.5` and `3.5.1`.
+For 3.24 gives `alpine3.24`, `alpine3.24-4`, `alpine3.24-4.0`, `alpine3.24-4.0.0`, `alpine3.24.3`,
+`alpine3.24.3-4.0.0`, then `latest`, `4`, `4.0` and `4.0.0`.
 
 ### Version folders with an application - WordPress
 
