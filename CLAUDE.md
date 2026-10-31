@@ -8,6 +8,18 @@ versions) in step with the images.
 On a new machine, clone `index` then run `./clone-all.sh` to clone the images alongside it (`--pull` also pulls
 clean `main` branches). The image list comes from `docker-index.code-workspace` - add new images there.
 
+## Project state
+
+`PROJECT_STATE.md` in this repository is a snapshot of where the whole ecosystem is - read it at the start of a
+session. Before ending any session that changed code or decisions (in `index` or any image), update it:
+
+* **What's built** - the current state, not the history.
+* **Key decisions** - each with the reasoning, so it is not re-argued later.
+* **What's next** - the next steps, in order.
+* **Open questions** - anything undecided or unchecked.
+
+Keep it a concise snapshot, not a changelog: replace what has changed, and remove what is done or no longer true.
+
 ## Image dependencies and release order
 
 ```plain
