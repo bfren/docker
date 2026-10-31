@@ -56,13 +56,12 @@ Images with a `CHANGELOG.md` (`../alpine` is the reference) follow [Keep a Chang
     Never write `-dev` in a tag.
   * Published releases push release images with `BF_PUBLISHING=1`, which removes the tests.
   * Tags can use `${FOLDER}` and version files as variables (`${VERSION}`, `${VERSION_MAJOR}`, `${ALPINE_REVISION}`…).
-    The folder named in `default-folder` also gets `default-tags` - only Alpine, Alpine S6, Debian, Debian S6, Nginx
-    and PHP have one, so the rest have no `latest` and users choose a version.
+    The folder named in `default-folder` also gets `default-tags` - only Alpine, Alpine S6, Debian, Debian S6, Nginx,
+    PHP, ClamAV, Node and Redis have one (giving them `latest`), plus Baïkal, whose PHP 8.4 image also gets the
+    `baikalA.B.C` tags. The rest have no `latest` and users choose a version.
   * Callers use `bfren/docker/.github/workflows/build.yml@shared-build` until that branch is merged into `main`.
-* Moved so far: `alpine` and `alpine-s6`. The rest still have `dev.yml` and `publish.yml` - move an image by copying
-  `index/templates/build.yml` and following "Moving an image to the workflow" in `index/templates/README.md`. Until it
-  is moved, keep its `dev.yml` tags the same as `publish.yml` with a `-dev` suffix (`sync_dev_tags.py` has been
-  deleted on this branch).
+* Every image has moved - none has `dev.yml` or `publish.yml` any more. A new image copies
+  `index/templates/build.yml` and follows "Moving an image to the workflow" in `index/templates/README.md`.
 * Major: breaking changes. Minor: new features or behaviour. Revision: fixes, and rebuilds for upstream updates (e.g. a
   new base image or BusyBox version with no behaviour change).
 
