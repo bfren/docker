@@ -57,7 +57,7 @@ Images with a `CHANGELOG.md` (`../alpine` is the reference) follow [Keep a Chang
   * Published releases push release images with `BF_PUBLISHING=1`, which removes the tests.
   * Tags can use `${FOLDER}` and version files as variables (`${VERSION}`, `${VERSION_MAJOR}`, `${ALPINE_REVISION}`…).
     The folder named in `default-folder` also gets `default-tags` - only Alpine, Alpine S6, Debian, Debian S6, Nginx,
-    PHP, ClamAV, Node and Redis have one (giving them `latest`), plus Baïkal, whose PHP 8.4 image also gets the
+    PHP, ClamAV and Redis have one (giving them `latest`), plus Baïkal, whose PHP 8.4 image also gets the
     `baikalA.B.C` tags. The rest have no `latest` and users choose a version.
   * Callers use `bfren/docker/.github/workflows/build.yml@shared-build` until that branch is merged into `main`.
 * Every image has moved - none has `dev.yml` or `publish.yml` any more. A new image copies

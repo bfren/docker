@@ -25,7 +25,7 @@ Each image has one small workflow that calls it - copy [build.yml](build.yml) to
 If a tag uses a variable with no matching file, the build stops and says which variable it could not find.
 
 An image with a single Dockerfile puts `latest` in its `tags`. An image with several versions names a `default-folder`
-only when one version should also be `latest` (Alpine, Alpine S6, Debian, Debian S6, Nginx, PHP, ClamAV, Node and
+only when one version should also be `latest` (Alpine, Alpine S6, Debian, Debian S6, Nginx, PHP, ClamAV and
 Redis); its `default-tags` are then `latest` and the bare version tags. Baïkal is the exception: it has no `latest`,
 but its PHP 8.4 folder is the `default-folder` so that it also gets the `baikalA.B.C` tags. Everything else leaves
 both out, so users choose a version.
