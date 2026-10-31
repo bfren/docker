@@ -38,6 +38,10 @@ Decisions:
 3. For each downstream image, replace the `-dev` base pin with the released version - `BASE_VERSION` in
    `generate-dockerfiles.sh` (then re-run it), or in the Dockerfile itself for caddy-proxy, freshrss, ftps,
    nginx-webdav, samba, send and wireguard - and set the changelog date when tagging.
+4. Add a workflow to `index` that collects each image repository's `README.md` and builds a simple documentation
+   website from them, hosted on GitHub Pages and published by GitHub Actions. It runs on every push to `main` in
+   `index` (which is updated whenever the images are), fetching the READMEs from each image's `main` branch. The
+   image list comes from `docker-index.code-workspace`, as for `clone-all.sh`.
 
 ## Open questions
 
