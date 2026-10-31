@@ -11,6 +11,9 @@ Each image has one small workflow that calls it - copy [build.yml](build.yml) to
 - Each folder is built for each platform on its own runner: amd64 and arm64 natively, anything else using QEMU.
   Tests run on the native platforms, followed by the `smoke-test` script if there is one (it is given the test image's
   tag). The platforms are then joined into one multi-platform image per folder.
+- **Builds push to Quay.io only.** The finished image is created on Quay.io first, then copied to Docker Hub in one step
+  per folder, so Docker Hub sees as few requests as possible and is less likely to refuse them (`429 Too Many
+  Requests`). If that copy fails, re-run the merge job - Quay.io already has the image.
 
 ## The two rules for tags
 
