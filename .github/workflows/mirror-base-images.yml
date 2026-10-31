@@ -1,7 +1,7 @@
 name: Mirror base images to Quay.io
 
-# Copy the official Alpine and Debian slim images from Docker Hub to Quay.io, so image builds do not hit Docker Hub's
-# pull rate limits. The images are copied unchanged, so they keep the same digests.
+# Copy the official Alpine and Debian slim images, and the Caddy builder image, from Docker Hub to Quay.io, so image
+# builds do not hit Docker Hub's pull rate limits. The images are copied unchanged, so they keep the same digests.
 
 on:
   schedule:
@@ -12,6 +12,8 @@ env:
   # Alpine minor and Debian major versions used by bfren images - keep in step with docker-alpine and docker-debian
   ALPINE_MINORS: "3.20 3.21 3.22 3.23 3.24"
   DEBIAN_MAJORS: "12 13"
+  # Caddy builder tags used by docker-caddy-proxy (CADDY_BUILDER in its Dockerfile) - keep in step with it
+  CADDY_BUILDERS: "2.11-builder-alpine"
 
 jobs:
   mirror:
@@ -69,4 +71,9 @@ jobs:
           # Debian: the slim major tag (e.g. 13-slim) and every slim point release (e.g. 13.7-slim)
           for MAJOR in ${DEBIAN_MAJORS} ; do
             { tags debian "${MAJOR}." "^${MAJOR}\.[0-9]+-slim " ; tags debian "${MAJOR}-slim" "^${MAJOR}-slim " ; } | copy debian
+          done
+
+          # Caddy: each builder tag exactly (e.g. 2.11-builder-alpine)
+          for TAG in ${CADDY_BUILDERS} ; do
+            tags caddy "${TAG}" "^${TAG//./\\.} " | copy caddy
           done
