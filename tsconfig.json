@@ -11,6 +11,11 @@
             "bf": [
                 "./images/alpine/overlay/etc/tjs/scripts/bf/index.ts"
             ]
-        }
+        },
+        // image overlays are merged in the image, so an image's scripts can import modules from its base image's
+        "rootDirs": [
+            "./images/alpine/overlay/etc/tjs/scripts",
+            "./images/debian/overlay/etc/tjs/scripts"
+        ]
     }
 }

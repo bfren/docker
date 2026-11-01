@@ -80,7 +80,7 @@ Rules:
 
 ## Code conventions
 
-Images are being migrated from Nushell to [txiki.js](https://github.com/saghul/txiki.js) - `alpine` is done; the
+Images are being migrated from Nushell to [txiki.js](https://github.com/saghul/txiki.js) - `alpine` and `debian` are done; the
 Nushell originals (in `../docker`) are the specification, and `python3 tools/parity.py ../docker images [image]` reports
 what is left to port.
 
