@@ -21,7 +21,7 @@ PULL=${1:-}
 # Get the list of images from the workspace folder names (excluding index).
 #======================================================================================================================
 
-IMAGES=$(grep '"name"' "${WORKSPACE}" | sed 's/.*"name": *"//; s/".*//' | grep -v '^index$')
+IMAGES=$(grep '"name"' "${WORKSPACE}" | sed 's/.*"name": *"//; s/".*//' | grep -v '^index$' | grep -v '^bin/')
 
 
 #======================================================================================================================

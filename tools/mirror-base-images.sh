@@ -1,7 +1,8 @@
 #!/bin/bash
 #
-# Copy the current official Alpine and Debian slim releases from Docker Hub to quay.io/bfren-bin, so image builds do
-# not hit Docker Hub's pull rate limits. The images are copied unchanged, so they keep the same digests.
+# Copy the current official Alpine and Debian slim releases, and the Caddy builder, from Docker Hub to
+# quay.io/bfren-bin, so image builds do not hit Docker Hub's pull rate limits. The images are copied unchanged, so they
+# keep the same digests.
 #
 # Run daily by .github/workflows/mirror-base-images.yml. To run it locally (needs bash, curl, jq and skopeo):
 #
@@ -17,6 +18,9 @@ set -euo pipefail
 # Alpine minor and Debian major versions used by bfren images - keep in step with docker-alpine and docker-debian
 ALPINE_MINORS="${ALPINE_MINORS:-3.20 3.21 3.22 3.23 3.24}"
 DEBIAN_MAJORS="${DEBIAN_MAJORS:-12 13}"
+
+# Caddy minor version of the builder used by docker-caddy-proxy (CADDY_BUILDER in its Dockerfile) - keep in step with it
+CADDY_MINORS="${CADDY_MINORS:-2.11}"
 
 # credentials for Docker Hub, if set
 SRC_CREDS=()
@@ -59,4 +63,8 @@ done
 
 for MAJOR in ${DEBIAN_MAJORS} ; do
   mirror debian "${MAJOR}-slim" "${MAJOR}." "^${MAJOR}\.[0-9]+-slim$"
+done
+
+for MINOR in ${CADDY_MINORS} ; do
+  mirror caddy "${MINOR}-builder-alpine" "${MINOR}." "^${MINOR//./\\.}\.[0-9]+-builder-alpine$"
 done

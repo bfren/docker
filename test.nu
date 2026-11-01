@@ -17,6 +17,9 @@ export def main [
         print $"(char newline)(ansi rb)Failed tests for ($image) ($r.branch | str trim):(ansi reset)"
         for t in $r.failed { print $"  ($t)" }
     }
+
+    # exit with an error if any branch did not pass, so scripts can tell a failure from a pass
+    if ($results | any {|r| not ($r.result | str contains "✔") }) { exit 1 }
 }
 
 # Execute test suite for a particular branch (piped in)
@@ -64,6 +67,7 @@ def test [
 
     let test_args = [
         "run"
+        "--rm"
         "--quiet"
         "--entrypoint" "/test"
         $image_tag
