@@ -28,9 +28,9 @@ fi
 
 cd ${IMAGE_DIR}
 
-# anything already staged would be swept into the version commit
-if [[ -n "$(git status --porcelain)" ]] ; then
-    echo "There are uncommitted changes."
+# staged changes would be swept into the version commit - unstaged ones just move to the new branch
+if ! git diff --cached --quiet ; then
+    echo "There are staged changes."
     exit 1
 fi
 
