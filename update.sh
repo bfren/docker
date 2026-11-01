@@ -4,14 +4,14 @@ set -euo pipefail
 
 
 #======================================================================================================================
-# Tidy every repository next to this one: prune deleted remote branches, delete local branches that are merged, gc,
+# Tidy every image submodule in images/: prune deleted remote branches, delete local branches that are merged, gc,
 # then pull the current branch.
 #
 # Nothing is lost: repositories with uncommitted changes are skipped, branches are only deleted when git says they are
 # merged (git branch -d), and pulls only fast-forward.
 #======================================================================================================================
 
-PARENT_DIR=$(dirname "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)")
+IMAGES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/images"
 
 # succeed if branch $2 in repository $1 was squash-merged: its branch on GitHub has been deleted, and origin/main
 # already has the same change as all its commits squashed together - so nothing on it would be lost
@@ -24,11 +24,12 @@ squash_merged() {
     [[ $(git -C "$1" cherry origin/main "${SQUASH}") == "-"* ]]
 }
 
-for DIR in "${PARENT_DIR}"/*/ ; do
+for DIR in "${IMAGES_DIR}"/*/ ; do
 
     DIR=${DIR%/}
     NAME=$(basename "${DIR}")
-    [[ -d ${DIR}/.git ]] || continue
+    # in a submodule .git is a file pointing at the repository, not a directory
+    [[ -e ${DIR}/.git ]] || continue
 
     if [[ -n $(git -C "${DIR}" status --porcelain) ]] ; then
         echo "${NAME} .. skipped - has uncommitted changes"
