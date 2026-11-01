@@ -12,9 +12,9 @@ Done:
   WordPress never sets. Alpine 3.24 no longer packages it for PHP 8.4 and 8.5 anyway.
 * Audit fixes in `index`: deleted `test-read-file.yml` and `container-packages-cleanup.yml` (nothing pushes to
   ghcr.io); moved `nuget-packages-cleanup.yml` to `bfren/bfren`, with the third-party action pinned to a commit
-  because it is given a token that can delete packages; `bump.sh` stops on staged changes (unstaged ones are fine - they move to the new branch); `fmt_tables.py check`
-  exits 1 when a table is misaligned and has a self-check (`tools/test_fmt_tables.py`); the mirror's rate-limit
-  step can no longer stop the copy.
+  because it is given a token that can delete packages; `bump.sh` stops on staged changes (unstaged ones are fine -
+  they move to the new branch); `fmt_tables.py check` exits 1 when a table is misaligned and has a self-check
+  (`tools/test_fmt_tables.py`); the mirror's rate-limit step can no longer stop the copy.
 * Audit fixes in the image repos, on each one's release branch:
   * postgresql: a restore keeps the dump (renamed `dump.sql.restored`) and saves `psql` errors to `dump.sql.log`
     with a warning - `psql` carries on after a failed statement and exits 0, so a bad dump looked like a success.
