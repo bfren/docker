@@ -25,7 +25,8 @@ jobs:
       -
         name: Show Docker Hub rate limit
         # which limit applies to these credentials, and whether it is counted against the account or the runner's IP -
-        # a HEAD request does not count as a pull
+        # a HEAD request does not count as a pull - information only, so a failure here does not stop the copy
+        continue-on-error: true
         env:
           DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
           DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}

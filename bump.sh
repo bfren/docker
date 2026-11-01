@@ -27,13 +27,20 @@ fi
 #======================================================================================================================
 
 cd ${IMAGE_DIR}
-git pull
+
+# anything already staged would be swept into the version commit
+if [[ -n "$(git status --porcelain)" ]] ; then
+    echo "There are uncommitted changes."
+    exit 1
+fi
 
 CURRENT_BRANCH=`git rev-parse --abbrev-ref HEAD`
 if [[ "${CURRENT_BRANCH}" != "main" ]] ; then
     echo "Current branch is not 'main'."
     exit 1
 fi
+
+git pull
 
 
 #======================================================================================================================
@@ -50,8 +57,6 @@ echo "Updating ${IMAGE} from ${CURRENT_VERSION} to ${NEW_VERSION}."
 #======================================================================================================================
 # Create a new branch.
 #======================================================================================================================
-
-git pull
 
 NEW_BRANCH="v${NEW_VERSION}"
 git branch ${NEW_BRANCH}

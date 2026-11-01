@@ -3,7 +3,8 @@
 
 Usage: fmt_tables.py check|apply [--shared] <file.md>...
   --shared  tables with the same number of columns share column widths (used for the index README)
-Tables inside ``` fences are ignored; CRLF line endings are preserved.
+Tables inside ``` fences are ignored; CRLF line endings are preserved. check exits 1 if any table is misaligned.
+Tests: python3 tools/test_fmt_tables.py
 """
 import sys, re
 
@@ -58,15 +59,16 @@ def fmt_table(lines, shared=None):
         out.append('| ' + ' | '.join(cells) + ' |')
     return out
 
-def tables(lines):
+def blocks(lines):
+    # yield (is_table, lines) - each table as one block, every other line on its own
     i, fence = 0, False
     while i < len(lines):
         if lines[i].lstrip().startswith('```'): fence = not fence
         if not fence and lines[i].startswith('|'):
             j = i
             while j < len(lines) and lines[j].startswith('|'): j += 1
-            yield lines[i:j]; i = j; continue
-        i += 1
+            yield True, lines[i:j]; i = j; continue
+        yield False, [lines[i]]; i += 1
 
 def padded_widths(block, sep_idx, n):
     # existing width of each column (cell text plus padding, less the single space either side) - so --shared keeps
@@ -81,7 +83,8 @@ def padded_widths(block, sep_idx, n):
 
 def shared_widths(lines):
     shared = {}
-    for block in tables(lines):
+    for is_table, block in blocks(lines):
+        if not is_table: continue
         rows, sep_idx = parse(block)
         n = len(rows[0])
         widths = col_widths(rows, sep_idx, shared.get(n))
@@ -89,26 +92,25 @@ def shared_widths(lines):
     return shared
 
 def process(text, shared=False):
-    lines, out, i, fence, changed = text.split('\n'), [], 0, False, 0
+    lines, out, changed = text.split('\n'), [], 0
     widths = shared_widths(lines) if shared else None
-    while i < len(lines):
-        l = lines[i]
-        if l.lstrip().startswith('```'): fence = not fence
-        if not fence and l.startswith('|'):
-            j = i
-            while j < len(lines) and lines[j].startswith('|'): j += 1
-            block = lines[i:j]; new = fmt_table(block, widths)
-            if new != block: changed += 1
-            out += new; i = j; continue
-        out.append(l); i += 1
+    for is_table, block in blocks(lines):
+        new = fmt_table(block, widths) if is_table else block
+        if new != block: changed += 1
+        out += new
     return '\n'.join(out), changed
 
-apply = sys.argv[1] == 'apply'
-shared = '--shared' in sys.argv[2:]
-for p in [a for a in sys.argv[2:] if a != '--shared']:
-    t = open(p, encoding='utf-8', newline='').read()
-    crlf = '\r\n' in t
-    t2, n = process(t.replace('\r\n', '\n'), shared)
-    print(f"{p}: {n} table(s) {'reformatted' if apply else 'misaligned'}")
-    if apply and n:
-        open(p, 'w', encoding='utf-8', newline='').write(t2.replace('\n', '\r\n') if crlf else t2)
+if __name__ == '__main__':
+    apply = sys.argv[1] == 'apply'
+    shared = '--shared' in sys.argv[2:]
+    misaligned = False
+    for p in [a for a in sys.argv[2:] if a != '--shared']:
+        t = open(p, encoding='utf-8', newline='').read()
+        crlf = '\r\n' in t
+        t2, n = process(t.replace('\r\n', '\n'), shared)
+        print(f"{p}: {n} table(s) {'reformatted' if apply else 'misaligned'}")
+        misaligned = misaligned or n > 0
+        if apply and n:
+            open(p, 'w', encoding='utf-8', newline='').write(t2.replace('\n', '\r\n') if crlf else t2)
+    # check fails when anything is misaligned, so scripts can rely on it
+    sys.exit(1 if misaligned and not apply else 0)
