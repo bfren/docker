@@ -7,7 +7,7 @@ The handoff between sessions - see "Project state" in `CLAUDE.md` for how to kee
 Done - all committed and pushed:
 
 * `shared-build` is merged into `main` in `index` (PR #1). The image workflows, `templates/build.yml` and `CLAUDE.md`
-  still point at `@shared-build`, so keep that branch until they move.
+  still point at `@main`, so keep that branch until they move.
 * `update.sh` skips a repository whose `git fetch` fails and carries on, instead of stopping.
 * Planned a documentation website built from the image READMEs (Next 4).
 

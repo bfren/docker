@@ -19,7 +19,7 @@ concurrency:
 
 jobs:
   build:
-    uses: bfren/docker/.github/workflows/build.yml@shared-build
+    uses: bfren/docker/.github/workflows/build.yml@main
     with:
       # published as bfren/<image> and quay.io/bfren/<image>
       image: IMAGE
