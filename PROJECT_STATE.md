@@ -7,11 +7,12 @@ The handoff between sessions - see "Project state" in `CLAUDE.md` for how to kee
 Done:
 
 * Confirmed the move off `shared-build` is finished: nothing references it and the branch is deleted.
-* Removed `-imap` from wordpress's `overlay/tmp/PHP_EXT`, with a `Removed` entry in its 8.0.0 changelog. WordPress 7.1.4 never uses IMAP: the only call is in its bundled PHPMailer, behind a deprecated
-  `$useimap` argument that WordPress never sets. Alpine 3.24 no longer packages it for PHP 8.4 and 8.5 anyway.
+* Removed `-imap` from wordpress's `overlay/tmp/PHP_EXT`, with a `Removed` entry in its 8.0.0 changelog. WordPress
+  7.1.4 never uses IMAP: the only call is in its bundled PHPMailer, behind a deprecated `$useimap` argument that
+  WordPress never sets. Alpine 3.24 no longer packages it for PHP 8.4 and 8.5 anyway.
 * Audit fixes in `index`: deleted `test-read-file.yml` and `container-packages-cleanup.yml` (nothing pushes to
   ghcr.io); moved `nuget-packages-cleanup.yml` to `bfren/bfren`, with the third-party action pinned to a commit
-  because it is given a token that can delete packages; `bump.sh` stops on uncommitted changes; `fmt_tables.py check`
+  because it is given a token that can delete packages; `bump.sh` stops on staged changes (unstaged ones are fine - they move to the new branch); `fmt_tables.py check`
   exits 1 when a table is misaligned and has a self-check (`tools/test_fmt_tables.py`); the mirror's rate-limit
   step can no longer stop the copy.
 * Audit fixes in the image repos, on each one's release branch:
@@ -36,8 +37,8 @@ Decisions:
 
 ## Next
 
-1. Check the development builds of postgresql, mariadb, alpine, debian, wordpress and caddy-proxy pass (wireguard
-   has) - and that alpine images have an empty `/var/cache/apk`, debian images an empty `/var/lib/apt/lists` and no
+1. Check the development builds of alpine, wordpress and caddy-proxy pass (postgresql, mariadb, wireguard and debian
+   have) - and that alpine images have an empty `/var/cache/apk`, debian images an empty `/var/lib/apt/lists` and no
    `/usr/share/man`.
 2. Release in order: alpine → debian → alpine-s6 → debian-s6 → the downstream images (bases first).
 3. For each downstream image, replace the `-dev` base pin with the released version - `BASE_VERSION` in
