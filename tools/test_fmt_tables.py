@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Self-check for fmt_tables.py - run with: python3 tools/test_fmt_tables.py"""
 import os, sys
+sys.dont_write_bytecode = True  # no __pycache__ in the repository
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from fmt_tables import split_row, process
 
