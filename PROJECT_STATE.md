@@ -22,6 +22,11 @@ Done:
   * wireguard: peer keys and configurations are `0600` - they were world-readable in the bind-mounted `/config`.
   * All 23 images: `peter-evans/dockerhub-description` pinned to a commit (it gets the Docker Hub token) and the
     unneeded Docker Hub login step removed from `update-readme.yml`.
+  * alpine and debian: `bf clean` takes its default caches from `bf pkg caches`, so debian's copy of `clean.nu` is
+    deleted and debian only overrides `pkg.nu`.
+  * wordpress: a plugin only counts as installed if its directory has files - a failed download left an empty one,
+    so Ninja Firewall could be silently missing.
+  * caddy-proxy: `auth` must be a bool or a list - any other value was treated as `true` (every user).
 
 Decisions:
 
@@ -31,8 +36,9 @@ Decisions:
 
 ## Next
 
-1. Check the development builds of postgresql, mariadb and wireguard pass - the new tests (restore errors, refusing to
-   export `dump`) and the streamed backups have not been run yet.
+1. Check the development builds of postgresql, mariadb, alpine, debian, wordpress and caddy-proxy pass (wireguard
+   has) - and that alpine images have an empty `/var/cache/apk`, debian images an empty `/var/lib/apt/lists` and no
+   `/usr/share/man`.
 2. Release in order: alpine → debian → alpine-s6 → debian-s6 → the downstream images (bases first).
 3. For each downstream image, replace the `-dev` base pin with the released version - `BASE_VERSION` in
    `generate-dockerfiles.sh` (then re-run it), or in the Dockerfile itself for caddy-proxy, freshrss, ftps,
