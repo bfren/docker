@@ -4,7 +4,7 @@ The handoff between sessions - see "Project state" in `CLAUDE.md` for how to kee
 
 ## Last session (2026-11-03)
 
-Audited `alpine`, then fixed some findings - committed in each repository, to be pushed. This work was merged on top
+Audited `alpine`, then fixed some findings - committed and pushed in each repository. This work was merged on top
 of the 2026-11-01 session (audit fixes across the images, the move off `shared-build`) - see this file's git history
 for that session's notes.
 
