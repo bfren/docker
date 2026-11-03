@@ -2,32 +2,29 @@
 
 The handoff between sessions - see "Project state" in `CLAUDE.md` for how to keep it.
 
-## Last session (2026-11-01)
+## Last session (2026-11-03)
 
-Done:
+Audited `alpine`, then fixed some findings - committed in each repository, to be pushed. This work was merged on top
+of the 2026-11-01 session (audit fixes across the images, the move off `shared-build`) - see this file's git history
+for that session's notes.
 
-* Confirmed the move off `shared-build` is finished: nothing references it and the branch is deleted.
-* Removed `-imap` from wordpress's `overlay/tmp/PHP_EXT`, with a `Removed` entry in its 8.0.0 changelog. WordPress
-  7.1.4 never uses IMAP: the only call is in its bundled PHPMailer, behind a deprecated `$useimap` argument that
-  WordPress never sets. Alpine 3.24 no longer packages it for PHP 8.4 and 8.5 anyway.
-* Audit fixes in `index`: deleted `test-read-file.yml` and `container-packages-cleanup.yml` (nothing pushes to
-  ghcr.io); moved `nuget-packages-cleanup.yml` to `bfren/bfren`, with the third-party action pinned to a commit
-  because it is given a token that can delete packages; `bump.sh` stops on staged changes (unstaged ones are fine -
-  they move to the new branch); `fmt_tables.py check` exits 1 when a table is misaligned and has a self-check
-  (`tools/test_fmt_tables.py`); the mirror's rate-limit step can no longer stop the copy.
-* Audit fixes in the image repos, on each one's release branch:
-  * postgresql: a restore keeps the dump (renamed `dump.sql.restored`) and saves `psql` errors to `dump.sql.log`
-    with a warning - `psql` carries on after a failed statement and exits 0, so a bad dump looked like a success.
-  * postgresql and mariadb: backups are streamed to the file (`o>`) instead of going through `bf handle`, which held
-    the whole dump in memory; exporting a database called `dump` is refused, as `/backup/dump.sql` triggers a restore.
-  * wireguard: peer keys and configurations are `0600` - they were world-readable in the bind-mounted `/config`.
-  * All 23 images: `peter-evans/dockerhub-description` pinned to a commit (it gets the Docker Hub token) and the
-    unneeded Docker Hub login step removed from `update-readme.yml`.
-  * alpine and debian: `bf clean` takes its default caches from `bf pkg caches`, so debian's copy of `clean.nu` is
-    deleted and debian only overrides `pkg.nu`.
-  * wordpress: a plugin only counts as installed if its directory has files - a failed download left an empty one,
-    so Ninja Firewall could be silently missing.
-  * caddy-proxy: `auth` must be a bool or a list - any other value was treated as `true` (every user).
+* `alpine` (branch `v4.0.0`): `bf del old` lists the directory itself instead of a `dir/*` glob, so an empty
+  directory no longer gives an error. It deliberately skips hidden files and directories (no `--all`) - backup
+  volumes can hold markers like `.stfolder` or `.snapshot` that must never be deleted. A test fails if that changes.
+  `SHLVL` is no longer saved by `bf env store`. Removed the unused `use dump.nu` from 16 modules. README warns that
+  `/etc/bf/env.d` is readable by every user, so passwords should be files rather than `-e`, and says containers must
+  start as root (`/init` is `0500`). Changelog updated. The full suite passes on every Alpine version (3.20 to 3.24),
+  after the merge too.
+* `pull.sh` in all 19 image repositories is now just `git pull --ff-only` (and the optional checkout). It used to run
+  `git reset --hard`, which threw away local work, only to undo the mode changes made by its own `chmod +x` line.
+  Instead the top-level helper scripts that were stored as `100644` are now executable (`chmod +x`, shown as mode
+  changes in `git diff`), including `index/clone-all.sh`, so the `chmod` line is gone. `index/test.nu` is a module, so
+  it is left alone; `overlay/` files get their modes at build time, so they are left alone too.
+* `bf string format` is now `$values | format pattern $input` (Nushell built-in, one pass) instead of a regex check
+  plus a replace per key, which replaced placeholders inside inserted values. Every caller's template (build,
+  wordpress, baikal, caddy-proxy, php) is a plain URL or path, so `format pattern` rejecting stray braces is fine.
+  In Nushell `catch` must be on the same line as the closing `}` of `try` - on its own line it is run as a command.
+* Unused options such as `handle --debug` and `dump --always` stay - they are for debugging (now in `CLAUDE.md`).
 
 Decisions:
 
@@ -51,5 +48,7 @@ Decisions:
 
 ## Open questions
 
+* Make `/etc/bf/env.d` readable only by root and a shared group (`0640`) instead of every user? The README now warns
+  about it instead.
 * Mirror the BuildKit and QEMU (binfmt) images to Quay.io? Every build job still pulls them from Docker Hub.
 * Squash-only merges were checked on docker-nginx only - assumed the same everywhere.

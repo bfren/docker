@@ -128,6 +128,8 @@ Rules:
 ## Code conventions
 
 * Nushell 0.116+, functional style: small composable functions.
+* Keep options meant for debugging (e.g. `handle --debug`, `dump --always`, `ch --debug`) even when nothing calls
+  them - don't remove them as unused.
 * Run externals through `bf handle` (e.g. `{ ^cmd } | bf handle --code-only`, `--ignore-error`), not raw `complete`.
 * Remember that a failing external (non-zero exit) aborts a Nushell script - `pidof`, `grep` etc. exit 1 when they find
   nothing.
