@@ -25,7 +25,7 @@ The 2026-11-03 session (the `alpine` audit fixes, `pull.sh`, `bf string format`)
   `/var/cache/apk/*` default from before alpine `468e864` (which takes the caches from `pkg.nu`), so Debian's
   `pkg.nu` caches are never used. Tagging alpine will not fix this, because the `RUN` line does not change and stays
   cached.
-* **Fixed (not committed)** in `debian` (branch `v6.0.0`) and `debian-s6` (branch `v5.0.0`): `Dockerfile.esh` now
+* **Fixed** in `debian` (branch `v6.0.0`, `e8f3c04`) and `debian-s6` (branch `v5.0.0`, `a894889`): `Dockerfile.esh` now
   gets the overlay with `ADD https://github.com/bfren/docker-alpine(-s6).git#${ALPINE_BRANCH}` instead of
   `RUN git clone`. BuildKit looks up the remote commit on every build, so the layer rebuilds when the branch or tag
   moves. Debian keeps `bfren/alpine` as the stage base, because it also copies `ca-certificates.crt` from it, and adds
@@ -33,22 +33,24 @@ The 2026-11-03 session (the `alpine` audit fixes, `pull.sh`, `bf string format`)
   debian-s6 tests pass on 12 and 13. Local builds of debian 12 and 13 have the new `clean.nu`, an empty
   `/var/lib/apt/lists` and no `/usr/share/man`. There is no changelog entry, because the bug only affected
   development builds.
+* The development builds pass: debian run 41901548241, and debian-s6 run 41902194097. The debian-s6 run was started
+  by hand after debian finished, so it builds on the new debian image. `ADD` from a git URL works in CI.
+  `debian12-6.0.0-dev`, `debian13-6.0.0-dev`, `debian-s6:debian12-5.0.0-dev` and `debian-s6:debian13-5.0.0-dev` all
+  have an empty `/var/lib/apt/lists` and no `/usr/share/man`.
 
 Decisions:
 
-* **Downstream images pin `-dev` bases until release** - the bases are not released yet. Needed by Next 3.
+* **Downstream images pin `-dev` bases until release** - the bases are not released yet. Needed by Next 2.
 * **The documentation site rebuilds only on pushes to `main` in `index`** - `index` is updated whenever the images
-  are, so the image repositories need no workflow of their own to trigger it. Needed by Next 4.
+  are, so the image repositories need no workflow of their own to trigger it. Needed by Next 3.
 
 ## Next
 
-1. Commit and push the overlay fix in `debian` and `debian-s6`. Then check the development builds pass and that
-   `debian12-6.0.0-dev` and `debian13-6.0.0-dev` have an empty `/var/lib/apt/lists` and no `/usr/share/man`.
-2. Release in order: alpine → debian → alpine-s6 → debian-s6 → the downstream images (bases first).
-3. For each downstream image, replace the `-dev` base pin with the released version - `BASE_VERSION` in
+1. Release in order: alpine → debian → alpine-s6 → debian-s6 → the downstream images (bases first).
+2. For each downstream image, replace the `-dev` base pin with the released version - `BASE_VERSION` in
    `generate-dockerfiles.sh` (then re-run it), or in the Dockerfile itself for caddy-proxy, freshrss, ftps,
    nginx-webdav, samba, send and wireguard - and set the changelog date when tagging.
-4. Add a workflow to `index` that collects each image repository's `README.md` and builds a simple documentation
+3. Add a workflow to `index` that collects each image repository's `README.md` and builds a simple documentation
    website from them, hosted on GitHub Pages and published by GitHub Actions. It runs on every push to `main` in
    `index`, fetching the READMEs from each image's `main` branch. The image list comes from
    `docker-index.code-workspace`, as for `clone-all.sh`.
