@@ -4,7 +4,7 @@ The handoff between sessions - see "Project state" in `CLAUDE.md` for how to kee
 
 ## Last session (2026-11-04)
 
-Updated Caddy in `caddy-proxy` (branch `v2.0.0`) from 2.11.7 to 2.11.8, released 2026-11-04 - not yet committed.
+Updated Caddy in `caddy-proxy` (branch `v2.0.0`) from 2.11.7 to 2.11.8, released 2026-11-04 - committed and pushed.
 The 2026-11-03 session (the `alpine` audit fixes, `pull.sh`, `bf string format`) is in this file's git history.
 
 * `CADDY_VERSION` changed in the `Dockerfile`, in the `caddy-proxy` README build-argument table and in the `index`
@@ -20,21 +20,20 @@ The 2026-11-03 session (the `alpine` audit fixes, `pull.sh`, `bf string format`)
 
 Decisions:
 
-* **Downstream images pin `-dev` bases until release** - the bases are not released yet. Needed by Next 4.
+* **Downstream images pin `-dev` bases until release** - the bases are not released yet. Needed by Next 3.
 * **The documentation site rebuilds only on pushes to `main` in `index`** - `index` is updated whenever the images
-  are, so the image repositories need no workflow of their own to trigger it. Needed by Next 5.
+  are, so the image repositories need no workflow of their own to trigger it. Needed by Next 4.
 
 ## Next
 
-1. Commit and push the Caddy 2.11.8 update (`caddy-proxy` and the `index` README).
-2. Check the development builds of alpine, wordpress and caddy-proxy pass (postgresql, mariadb, wireguard and debian
+1. Check the development builds of alpine, wordpress and caddy-proxy pass (postgresql, mariadb, wireguard and debian
    have) - and that alpine images have an empty `/var/cache/apk`, debian images an empty `/var/lib/apt/lists` and no
    `/usr/share/man`.
-3. Release in order: alpine → debian → alpine-s6 → debian-s6 → the downstream images (bases first).
-4. For each downstream image, replace the `-dev` base pin with the released version - `BASE_VERSION` in
+2. Release in order: alpine → debian → alpine-s6 → debian-s6 → the downstream images (bases first).
+3. For each downstream image, replace the `-dev` base pin with the released version - `BASE_VERSION` in
    `generate-dockerfiles.sh` (then re-run it), or in the Dockerfile itself for caddy-proxy, freshrss, ftps,
    nginx-webdav, samba, send and wireguard - and set the changelog date when tagging.
-5. Add a workflow to `index` that collects each image repository's `README.md` and builds a simple documentation
+4. Add a workflow to `index` that collects each image repository's `README.md` and builds a simple documentation
    website from them, hosted on GitHub Pages and published by GitHub Actions. It runs on every push to `main` in
    `index`, fetching the READMEs from each image's `main` branch. The image list comes from
    `docker-index.code-workspace`, as for `clone-all.sh`.
