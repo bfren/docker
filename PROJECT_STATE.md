@@ -17,6 +17,22 @@ The 2026-11-03 session (the `alpine` audit fixes, `pull.sh`, `bf string format`)
   validation there.
 * `fmt_tables.py check` without `--shared` reports 1 misaligned table in the `index` README even before this edit.
   This is expected, because those tables share widths - `check --shared` reports 0.
+* Development builds pass for alpine (`97e0fd4`), wordpress (`3480bcb`), caddy-proxy (`f5e4288`) and debian
+  (`efd3690`). `alpine3.20-4.0.0-dev` and `alpine3.24-4.0.0-dev` have an empty `/var/cache/apk`.
+* **The debian dev images are not clean.** `debian12-6.0.0-dev` and `debian13-6.0.0-dev` still have the apt package
+  index in `/var/lib/apt/lists` (21M) and a `/usr/share/man`. They contain an old alpine overlay: the build log of
+  debian run 41605926267 shows the `git clone --branch v4.0.0` step `CACHED`. The image's `clean.nu` still has the
+  `/var/cache/apk/*` default from before alpine `468e864` (which takes the caches from `pkg.nu`), so Debian's
+  `pkg.nu` caches are never used. Tagging alpine will not fix this, because the `RUN` line does not change and stays
+  cached.
+* **Fixed (not committed)** in `debian` (branch `v6.0.0`) and `debian-s6` (branch `v5.0.0`): `Dockerfile.esh` now
+  gets the overlay with `ADD https://github.com/bfren/docker-alpine(-s6).git#${ALPINE_BRANCH}` instead of
+  `RUN git clone`. BuildKit looks up the remote commit on every build, so the layer rebuilds when the branch or tag
+  moves. Debian keeps `bfren/alpine` as the stage base, because it also copies `ca-certificates.crt` from it, and adds
+  the repository at `/tmp/docker-alpine`. debian-s6 uses `scratch`. Dockerfiles regenerated. The debian and
+  debian-s6 tests pass on 12 and 13. Local builds of debian 12 and 13 have the new `clean.nu`, an empty
+  `/var/lib/apt/lists` and no `/usr/share/man`. There is no changelog entry, because the bug only affected
+  development builds.
 
 Decisions:
 
@@ -26,9 +42,8 @@ Decisions:
 
 ## Next
 
-1. Check the development builds of alpine, wordpress and caddy-proxy pass (postgresql, mariadb, wireguard and debian
-   have) - and that alpine images have an empty `/var/cache/apk`, debian images an empty `/var/lib/apt/lists` and no
-   `/usr/share/man`.
+1. Commit and push the overlay fix in `debian` and `debian-s6`. Then check the development builds pass and that
+   `debian12-6.0.0-dev` and `debian13-6.0.0-dev` have an empty `/var/lib/apt/lists` and no `/usr/share/man`.
 2. Release in order: alpine → debian → alpine-s6 → debian-s6 → the downstream images (bases first).
 3. For each downstream image, replace the `-dev` base pin with the released version - `BASE_VERSION` in
    `generate-dockerfiles.sh` (then re-run it), or in the Dockerfile itself for caddy-proxy, freshrss, ftps,
