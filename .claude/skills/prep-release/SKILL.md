@@ -9,8 +9,9 @@ argument-hint: <image> [<image> ...]
 Run from `index`. Each argument is a sibling image repository (`../<image>`). Do the images in release order
 (`CLAUDE.md` - "Image dependencies and release order"), and finish one before starting the next.
 
-The only commit this skill makes is the changelog (step 4). Never commit anything else, and never tag, push or merge -
-leave other changes in the working tree and say what is ready.
+The only commit this skill makes is the changelog (step 3), and the only push is that commit (step 4). Never commit or
+push anything else, and never tag or merge - leave other changes in the working tree and say what is ready. Running
+this skill is the user's explicit request to push the changelog commit, under the conditions in step 4.
 
 ## 1. Find the range
 
@@ -40,19 +41,7 @@ Read the diff, not just the commit messages. The per-version `Dockerfile`s are g
 one of them only to confirm the regenerated output. Sort each change into what affects the published image (for the
 changelog) and build or development work (for the release notes only).
 
-## 3. Check the base image
-
-The base must be a released version, never a `-dev` build.
-
-* `BASE_VERSION` and `ALPINE_BRANCH` in `generate-dockerfiles.sh`. Images without one pin the base in the `Dockerfile`
-  itself: the `FROM quay.io/bfren/...` line (freshrss, ftps, nginx-webdav, samba, send, wireguard) or
-  `ARG BASE_IMAGE=` (caddy-proxy).
-* `grep -n -- '-dev' generate-dockerfiles.sh Dockerfile* */Dockerfile 2>/dev/null` must find no base pin.
-* The base version must be released: `gh release view v<BASE_VERSION> -R bfren/docker-<base>`. If it isn't, stop -
-  the base is released first.
-* If a pin changes, re-run `./generate-dockerfiles.sh` and check that the generated `Dockerfile`s changed to match.
-
-## 4. Changelog
+## 3. Changelog
 
 Follow `CLAUDE.md` - "Changelog". Check that:
 
@@ -62,13 +51,44 @@ Follow `CLAUDE.md` - "Changelog". Check that:
 * The date is today's (`date +%F`), replacing `Unreleased`.
 * The compare link is `[<VERSION>]: https://github.com/bfren/docker-<image>/compare/vPREVIOUS...v<VERSION>`.
 
-Then commit the changelog on its own - only `CHANGELOG.md`, even if other files have changes:
+Then commit the changelog on its own - only `CHANGELOG.md`, even if other files have changes. Don't push yet - that
+waits for the base check in step 4:
 
 ```bash
 git commit -m 'Prepping CHANGELOG.md for release' -- CHANGELOG.md
 ```
 
-If `CHANGELOG.md` has no changes (already dated and complete), skip the commit and say so. Don't push.
+If `HEAD` is already an unpushed `Prepping CHANGELOG.md for release` commit from an earlier run, amend it instead
+(`git commit --amend --no-edit -- CHANGELOG.md`), so there is still only one. If `CHANGELOG.md` has no changes (already
+dated and complete), skip the commit and say so.
+
+## 4. Check the base image
+
+The base must be a released version, never a `-dev` build.
+
+* `BASE_VERSION` and `ALPINE_BRANCH` in `generate-dockerfiles.sh`. Images without one pin the base in the `Dockerfile`
+  itself: the `FROM quay.io/bfren/...` line (freshrss, ftps, nginx-webdav, samba, send, wireguard) or
+  `ARG BASE_IMAGE=` (caddy-proxy).
+* `grep -n -- '-dev' generate-dockerfiles.sh Dockerfile* */Dockerfile 2>/dev/null` must find no base pin.
+* The base version must be released: `gh release view v<BASE_VERSION> -R bfren/docker-<base>`. If it isn't, stop -
+  the base is released first. Don't push.
+* If a pin changes, re-run `./generate-dockerfiles.sh` and check that the generated `Dockerfile`s changed to match. If
+  the changelog's base version was wrong, fix it and amend the changelog commit (it isn't pushed yet).
+
+Then push the changelog commit - only now, after the base check, so the build tests the image you are releasing:
+
+```bash
+git status -sb   # must show only "[ahead 1]" - no other unpushed commits, no modified or untracked files
+git push
+```
+
+Push only when the changelog commit is the only unpushed commit and the working tree is clean - `git push` sends every
+unpushed commit, and a build without uncommitted changes (e.g. a base pin changed above) would test the wrong image. If
+anything else is unpushed or uncommitted, don't push: say what is in the way, and that it needs committing and pushing
+by the user. The changelog commit can be from this run or an earlier one - push it either way. If nothing is
+unpushed, there is nothing to push.
+
+After a push, start waiting for the development build in the background (see step 6) and carry on with step 5.
 
 ## 5. README
 
@@ -86,9 +106,17 @@ misaligned`. Also update the `index` `README.md` if any version it lists for thi
 
 * `./test.nu --all` in the image repository (just `./test.nu` for an image with no per-version folders) - it must
   pass.
-* `gh run list -R bfren/docker-<image> --branch v<VERSION> --limit 1` - the latest development build must have passed,
-  and be for the current `HEAD` (`git rev-parse --short HEAD`). If `HEAD` is not pushed yet, say so - it needs pushing
-  and a passing build before tagging.
+* The development build for the current `HEAD` must pass - a build for an earlier commit doesn't count. If step 4
+  pushed, the push cancels any running build for the branch (`cancel-in-progress`) and starts one for `HEAD`. Find it
+  (it can take a few seconds to appear) and wait for it:
+
+  ```bash
+  gh run list -R bfren/docker-<image> --branch v<VERSION> --commit $(git rev-parse HEAD) --limit 1 --json databaseId,status
+  gh run watch <databaseId> -R bfren/docker-<image> --exit-status
+  ```
+
+  The watch was started in the background in step 4 - check its result here. If `HEAD` was not pushed (step 4
+  stopped), say so - it needs pushing and a passing build before tagging.
 
 ## 7. Release notes
 
@@ -124,6 +152,7 @@ Give the release notes in a code block, then list:
 
 * what was changed (files, and what was added to the changelog or README)
 * every check that failed or could not be run, and why
-* what's left before tagging - e.g. the base not released yet, or the dev build not finished
+* whether the changelog commit was pushed, and if not, why
+* what's left before tagging - e.g. the base not released yet, or the dev build failed
 
 Then update `PROJECT_STATE.md` as `CLAUDE.md` - "Project state" says.
