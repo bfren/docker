@@ -9,7 +9,8 @@ argument-hint: <image> [<image> ...]
 Run from `index`. Each argument is a sibling image repository (`../<image>`). Do the images in release order
 (`CLAUDE.md` - "Image dependencies and release order"), and finish one before starting the next.
 
-Never commit, tag, push or merge - leave the changes in the working tree and say what is ready.
+The only commit this skill makes is the changelog (step 4). Never commit anything else, and never tag, push or merge -
+leave other changes in the working tree and say what is ready.
 
 ## 1. Find the range
 
@@ -19,8 +20,10 @@ git fetch --tags --quiet
 git branch --show-current          # should be vX.Y.Z, matching VERSION
 cat VERSION VERSION_MAJOR VERSION_MINOR
 git tag --sort=-v:refname | head -1 # the previous release, vPREVIOUS
-git status --short                  # uncommitted work - include it, and say it is uncommitted
+git status -sb                      # uncommitted work - include it, and say it is uncommitted; "ahead" means unpushed
 ```
+
+A branch can have the same name as a tag (e.g. `v1.0.7`), so use `refs/tags/vPREVIOUS` in the commands below.
 
 Stop and ask if the branch is not `v<VERSION>`, or if `VERSION_MAJOR` / `VERSION_MINOR` don't match `VERSION`. Check
 that the bump fits the changes (`CLAUDE.md` - "Versions"): a breaking change needs a major bump.
@@ -28,9 +31,9 @@ that the bump fits the changes (`CLAUDE.md` - "Versions"): a breaking change nee
 ## 2. Read every change
 
 ```bash
-git log --format='%h %s%n%b' vPREVIOUS..HEAD
-git diff --stat vPREVIOUS HEAD
-git diff vPREVIOUS HEAD -- . ':!*/Dockerfile' ':!.github' ':!VERSION*' ':!CHANGELOG.md'
+git log --format='%h %s%n%b' refs/tags/vPREVIOUS..HEAD
+git diff --stat refs/tags/vPREVIOUS HEAD
+git diff refs/tags/vPREVIOUS HEAD -- . ':!*/Dockerfile' ':!.github' ':!VERSION*' ':!CHANGELOG.md'
 ```
 
 Read the diff, not just the commit messages. The per-version `Dockerfile`s are generated from `Dockerfile.esh` - read
@@ -59,6 +62,14 @@ Follow `CLAUDE.md` - "Changelog". Check that:
 * The date is today's (`date +%F`), replacing `Unreleased`.
 * The compare link is `[<VERSION>]: https://github.com/bfren/docker-<image>/compare/vPREVIOUS...v<VERSION>`.
 
+Then commit the changelog on its own - only `CHANGELOG.md`, even if other files have changes:
+
+```bash
+git commit -m 'Prepping CHANGELOG.md for release' -- CHANGELOG.md
+```
+
+If `CHANGELOG.md` has no changes (already dated and complete), skip the commit and say so. Don't push.
+
 ## 5. README
 
 Follow `CLAUDE.md` - "README conventions", checking each fact against its source (the table there). Look in particular
@@ -73,9 +84,11 @@ misaligned`. Also update the `index` `README.md` if any version it lists for thi
 
 ## 6. Test
 
-* `./test.nu --all` in the image repository - it must pass.
+* `./test.nu --all` in the image repository (just `./test.nu` for an image with no per-version folders) - it must
+  pass.
 * `gh run list -R bfren/docker-<image> --branch v<VERSION> --limit 1` - the latest development build must have passed,
-  and be for the current `HEAD` (`git rev-parse --short HEAD`).
+  and be for the current `HEAD` (`git rev-parse --short HEAD`). If `HEAD` is not pushed yet, say so - it needs pushing
+  and a passing build before tagging.
 
 ## 7. Release notes
 
