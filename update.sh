@@ -7,22 +7,12 @@ set -euo pipefail
 # Tidy every repository next to this one: prune deleted remote branches, delete local branches that are merged, gc,
 # then pull the current branch.
 #
-# Nothing is lost: repositories with uncommitted changes are skipped, branches are only deleted when git says they are
-# merged (git branch -d), and pulls only fast-forward.
+# Repositories with uncommitted changes are skipped, and pulls only fast-forward. Branches are deleted when they are
+# merged, or when their branch on GitHub has been deleted (squash-merged or abandoned - the commit is printed so it can
+# be restored). Branches that were never pushed, or still exist on GitHub, are kept.
 #======================================================================================================================
 
 PARENT_DIR=$(dirname "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)")
-
-# succeed if branch $2 in repository $1 was squash-merged: its branch on GitHub has been deleted, and origin/main
-# already has the same change as all its commits squashed together - so nothing on it would be lost
-squash_merged() {
-    [[ $(git -C "$1" for-each-ref --format='%(upstream:track)' "refs/heads/$2") == "[gone]" ]] || return 1
-    git -C "$1" rev-parse -q --verify origin/main > /dev/null || return 1
-    local BASE SQUASH
-    BASE=$(git -C "$1" merge-base origin/main "$2") || return 1
-    SQUASH=$(git -C "$1" commit-tree --no-gpg-sign "$2^{tree}" -p "${BASE}" -m squash)
-    [[ $(git -C "$1" cherry origin/main "${SQUASH}") == "-"* ]]
-}
 
 for DIR in "${PARENT_DIR}"/*/ ; do
 
@@ -36,21 +26,22 @@ for DIR in "${PARENT_DIR}"/*/ ; do
     fi
 
     echo "${NAME} .. prune"
-    # without a fresh fetch the squash-merge check could use stale refs, so skip the repository and carry on
+    # without a fresh fetch, gone branches would be judged on stale refs, so skip the repository and carry on
     if ! git -C "${DIR}" fetch --prune --quiet ; then
         echo "${NAME} .. skipped - fetch failed"
         continue
     fi
 
-    # -d refuses to delete a branch with commits that are not merged, so unpushed work is kept
     CURRENT=$(git -C "${DIR}" branch --show-current)
-    for BRANCH in $(git -C "${DIR}" for-each-ref --format='%(refname:short)' refs/heads/) ; do
+    for BRANCH in $(git -C "${DIR}" for-each-ref --format='%(refname:lstrip=2)' refs/heads/) ; do
         [[ ${BRANCH} == "${CURRENT}" || ${BRANCH} == main ]] && continue
         if git -C "${DIR}" branch -d "${BRANCH}" > /dev/null 2>&1 ; then
             echo "${NAME} .. deleted merged branch ${BRANCH}"
-        elif squash_merged "${DIR}" "${BRANCH}" ; then
+        elif [[ $(git -C "${DIR}" for-each-ref --format='%(upstream:track)' "refs/heads/${BRANCH}") == "[gone]" ]] ; then
+            # squash-merged or abandoned - print the commit so it can be restored
+            SHA=$(git -C "${DIR}" rev-parse --short "refs/heads/${BRANCH}")
             git -C "${DIR}" branch -D "${BRANCH}" > /dev/null
-            echo "${NAME} .. deleted squash-merged branch ${BRANCH}"
+            echo "${NAME} .. deleted branch ${BRANCH} - gone on GitHub, restore with: git branch ${BRANCH} ${SHA}"
         else
             echo "${NAME} .. kept ${BRANCH} - not merged"
         fi
