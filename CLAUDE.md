@@ -11,8 +11,8 @@ clean `main` branches). The image list comes from `docker-index.code-workspace` 
 ## Project state
 
 `PROJECT_STATE.md` in this repository is the handoff between sessions. It is imported below, so it is loaded at the
-start of every session. Before ending any session that changed code or decisions (in `index` or any image), rewrite
-it:
+start of every session. Don't update it during a session - at the end of any session that changed code or decisions
+(in `index` or any image), the user runs `/close-session`, which rewrites it once:
 
 * **Last session** - what was done and the decisions made, with the reasoning. Replace this section each time; don't
   add to it.

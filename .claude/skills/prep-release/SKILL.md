@@ -155,4 +155,4 @@ Give the release notes in a code block, then list:
 * whether the changelog commit was pushed, and if not, why
 * what's left before tagging - e.g. the base not released yet, or the dev build failed
 
-Then update `PROJECT_STATE.md` as `CLAUDE.md` - "Project state" says.
+Don't update `PROJECT_STATE.md` - `/close-session` does that once, at the end of the session.
