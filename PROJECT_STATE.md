@@ -14,6 +14,10 @@ Fixed `update.sh` (committed and pushed as `417b1d8`):
   bump replaced by a minor bump), so the separate squash-merge check was removed. Branches never pushed, or still on
   GitHub, are kept. To abandon a branch, delete it on GitHub (`git push origin --delete <branch>`).
 
+`/close-session` now commits and pushes `PROJECT_STATE.md` itself (only that file, and only when that commit is the
+only unpushed one on `main`) - running the skill is the user's explicit request for it, like `/prep-release`'s
+changelog push. `CLAUDE.md` ("Project state") says so.
+
 Decisions:
 
 * **The documentation site rebuilds only on pushes to `main` in `index`** - `index` is updated whenever the images
