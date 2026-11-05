@@ -20,8 +20,8 @@ start of every session. Don't update it during a session - at the end of any ses
 * **Open questions** - remove them once answered.
 
 Keep an older decision only while an unfinished task depends on it. A decision that becomes a lasting convention moves
-into this file (`CLAUDE.md`) instead. Then ask the user to commit and push `index`, so the next session - on any
-machine - starts from it.
+into this file (`CLAUDE.md`) instead. The skill then commits and pushes `PROJECT_STATE.md` (only that file), so the
+next session - on any machine - starts from it.
 
 @PROJECT_STATE.md
 

@@ -1,6 +1,6 @@
 ---
 name: close-session
-description: Close a working session - rewrite PROJECT_STATE.md (the handoff to the next session) from what this session did and decided, then ask the user to commit and push index. Use for "close the session", "wrap up", "end of session", "update the project state", /close-session.
+description: Close a working session - rewrite PROJECT_STATE.md (the handoff to the next session) from what this session did and decided, then commit and push it. Use for "close the session", "wrap up", "end of session", "update the project state", /close-session.
 ---
 
 # Close the session
@@ -32,7 +32,21 @@ Follow `CLAUDE.md` - "Project state". Write the file once, in its final form:
 
 Lines wrap at 120 characters.
 
-## 3. Hand over
+## 3. Commit and push
 
-Show the user a short summary of what changed in `PROJECT_STATE.md` (and `CLAUDE.md`, if a convention moved there),
-then ask them to commit and push `index`. Don't commit it yourself.
+Running this skill is the user's explicit request to commit and push `PROJECT_STATE.md` - and nothing else. Commit
+only that file, even if others have changes:
+
+```bash
+git commit -m "Updating project state" -- PROJECT_STATE.md
+git status -sb   # must show "[ahead 1]" - no other unpushed commits
+git push
+```
+
+If `git status -sb` shows other unpushed commits, or the branch isn't `main`, don't push - say why and leave it to the
+user.
+
+## 4. Hand over
+
+Show the user a short summary of what changed in `PROJECT_STATE.md`, and whether it was pushed. If `CLAUDE.md` (a
+convention moved there) or anything else has changes, say they are uncommitted and ask the user to commit them.
