@@ -10,6 +10,9 @@ set -euo pipefail
 # Repositories with uncommitted changes are skipped, and pulls only fast-forward. Branches are deleted when they are
 # merged, or when their branch on GitHub has been deleted (squash-merged or abandoned - the commit is printed so it can
 # be restored). Branches that were never pushed, or still exist on GitHub, are kept.
+#
+# Finally, prune Docker (stopped containers, unused networks, dangling images and build cache) - the generate scripts
+# leave these behind. Skipped if Docker is not running.
 #======================================================================================================================
 
 PARENT_DIR=$(dirname "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)")
@@ -54,3 +57,10 @@ for DIR in "${PARENT_DIR}"/*/ ; do
     git -C "${DIR}" pull --ff-only --quiet 2> /dev/null || echo "${NAME} .. pull failed - not a fast-forward, or no upstream"
 
 done
+
+if docker info > /dev/null 2>&1 ; then
+    echo "docker .. prune"
+    docker system prune -f
+else
+    echo "docker .. skipped - not running"
+fi
