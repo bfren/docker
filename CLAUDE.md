@@ -87,6 +87,10 @@ Images with a `CHANGELOG.md` (`../alpine` is the reference) follow [Keep a Chang
   `index/templates/build.yml` and follows "Moving an image to the workflow" in `index/templates/README.md`.
 * Major: breaking changes. Minor: new features or behaviour. Revision: fixes, and rebuilds for upstream updates (e.g. a
   new base image or BusyBox version with no behaviour change).
+* Every image and bfren-bin repository has a "release tags" ruleset: `v*` tags can't be deleted or moved, by anyone. A
+  broken release is never deleted and re-made under the same version - fix it and release the next revision (or, for
+  a bfren-bin image, the next `VERSION`). `main` is protected too, so every change goes through a branch and pull
+  request.
 
 ## README conventions
 
