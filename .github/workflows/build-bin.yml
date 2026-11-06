@@ -11,8 +11,11 @@ name: build-bin
 #   Tags can use ${VERSION}. A tag that uses it is a release tag: images pin them, so the workflow refuses to run if
 #   one already exists - bump VERSION instead. Tags without it (e.g. 'alpine') move with each build.
 #
-#   Runs on main build release tags. Runs on any other branch are development builds: -dev is added to every tag, and
+#   Runs on main build release tags, then create a GitHub release 'v<VERSION>' on the commit that was built (callers
+#   must grant 'contents: write'). Runs on any other branch are development builds: -dev is added to every tag, and
 #   they may be overwritten.
+#
+#   Every image is labelled with the commit it was built from (org.opencontainers.image.revision).
 #
 #   Call it from a job with a matrix to build several versions - each call must have different tags.
 
@@ -139,6 +142,7 @@ jobs:
             NATIVE=${{ env.NATIVE }}
             VERSION=${{ needs.prepare.outputs.version }}
           platforms: ${{ matrix.platform }}
+          labels: org.opencontainers.image.revision=${{ github.sha }}
           outputs: type=image,name=${{ env.IMAGE }},push-by-digest=true,name-canonical=true,push=true
       -
         name: Save digest
@@ -158,6 +162,9 @@ jobs:
     # runs only if every platform built, so an image is never published with platforms missing
     needs: [prepare, execute]
     runs-on: ubuntu-latest
+    permissions:
+      # to create the release
+      contents: write
     steps:
       -
         name: Download digests
@@ -184,6 +191,20 @@ jobs:
           # join the platform digests into one image with every tag
           cd "${RUNNER_TEMP}/digests"
           docker buildx imagetools create $(jq -r --arg image "${IMAGE}" '.[] | "-t \($image):\(.)"' <<< "${TAGS}") \
+            --annotation "index:org.opencontainers.image.revision=${GITHUB_SHA}" \
             $(printf "${IMAGE}@sha256:%s " *)
           docker buildx imagetools inspect "${IMAGE}:$(jq -r '.[0]' <<< "${TAGS}")"
+        shell: bash
+      -
+        name: Create release
+        if: env.SUFFIX == ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE: v${{ needs.prepare.outputs.version }}
+        run: |
+          # a matrix of calls shares one release - the first creates it, and the rest (or one that loses the race to
+          # create it) find it already there; any other error fails the step
+          gh release view "${RELEASE}" -R "${GITHUB_REPOSITORY}" >/dev/null 2>&1 \
+            || gh release create "${RELEASE}" -R "${GITHUB_REPOSITORY}" --target "${GITHUB_SHA}" --generate-notes \
+            || gh release view "${RELEASE}" -R "${GITHUB_REPOSITORY}" >/dev/null
         shell: bash
