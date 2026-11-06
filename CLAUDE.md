@@ -79,6 +79,9 @@ Images with a `CHANGELOG.md` (`../alpine` is the reference) follow [Keep a Chang
     PHP, ClamAV and Redis have one (giving them `latest`), plus Baïkal, whose PHP 8.4 image also gets the
     `baikalA.B.C` tags. The rest have no `latest` and users choose a version.
   * Callers use `bfren/docker/.github/workflows/build.yml@main`.
+* The bfren-bin images (`quay.io/bfren-bin/busybox`, `figlet`, `nushell` and `unbound`, from `bfren/<name>`) build
+  with `index/.github/workflows/build-bin.yml` instead - see "bfren-bin images" in `index/templates/README.md`. Release
+  tags only come from `main` and are never overwritten, so bump `VERSION` before each run.
 * Every image has moved - none has `dev.yml` or `publish.yml` any more. A new image copies
   `index/templates/build.yml` and follows "Moving an image to the workflow" in `index/templates/README.md`.
 * Major: breaking changes. Minor: new features or behaviour. Revision: fixes, and rebuilds for upstream updates (e.g. a

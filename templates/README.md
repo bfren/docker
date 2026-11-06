@@ -128,3 +128,49 @@ For `php8.4` gives `php8.4`, `php8.4-7`, `php8.4-7.2`, `php8.4-7.2.1`, `php8.4-w
 
 The repository needs the `DOCKERHUB_USERNAME`, `DOCKERHUB_TOKEN` and `QUAY_TOKEN` secrets. Quay.io logs in as the
 repository owner (`bfren`), unless a `QUAY_USERNAME` secret is passed as well.
+
+## bfren-bin images
+
+The binaries the images are built from (`quay.io/bfren-bin/busybox`, `figlet`, `nushell` and `unbound`, each from its
+own repository, e.g. `bfren/busybox`) build with a second reusable workflow,
+[.github/workflows/build-bin.yml](../.github/workflows/build-bin.yml). It works the same way as `build.yml` - each
+platform builds on its own runner and is pushed by digest, then joined into one image - but it is much simpler:
+
+- **Run by hand** (`workflow_dispatch`), not on pushes or releases.
+- **Quay.io only**, as `quay.io/bfren-bin/<image>` - nothing goes to Docker Hub, and there are no tests or folders.
+- **Release tags only come from `main`.** Runs on any other branch add `-dev` to every tag.
+- **Release tags never change**, because images pin them. A tag that uses `${VERSION}` (the only variable) is a
+  release tag - on `main` the workflow stops before building if one already exists, so set `VERSION` to today's date
+  (`yymmdd`) before each run. Tags without it (e.g. Nushell's `alpine`) move with each build, and `-dev` tags may be
+  overwritten.
+- Every build gets the `VERSION` and `NATIVE` build arguments. `NATIVE` is `false` under QEMU - BusyBox uses it to
+  skip its test suite, which QEMU cannot run reliably.
+- Platforms default to `linux/amd64`, `linux/arm64` and `linux/arm/v7`.
+
+To build several versions, call it from a job with a matrix - each call must have different tags. BusyBox:
+
+```yaml
+name: build
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        busybox: [ "1.36.1", "1.37.0", "1.38.0" ]
+    uses: bfren/docker/.github/workflows/build-bin.yml@main
+    with:
+      image: busybox
+      build-args: |
+        BUSYBOX=${{ matrix.busybox }}
+      tags: |
+        ${{ matrix.busybox }}-${VERSION}
+    secrets:
+      QUAY_TOKEN: ${{ secrets.QUAY_TOKEN }}
+```
+
+With `VERSION` set to `261106`, gives `1.36.1-261106`, `1.37.0-261106` and `1.38.0-261106` (each with `-dev` when run
+from another branch).
