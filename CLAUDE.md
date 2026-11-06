@@ -90,7 +90,8 @@ Images with a `CHANGELOG.md` (`../alpine` is the reference) follow [Keep a Chang
 * Every image and bfren-bin repository has a "release tags" ruleset: `v*` tags can't be deleted or moved, by anyone. A
   broken release is never deleted and re-made under the same version - fix it and release the next revision (or, for
   a bfren-bin image, the next `VERSION`). `main` is protected too, so every change goes through a branch and pull
-  request. `index` is the exception: commit straight to `main` (commits must be signed, and force pushes are blocked).
+  request. `index` has no rulesets: commit straight to `main` (commits must be signed, and force pushes are
+  blocked), unless a change needs testing first - e.g. the shared workflows - which goes on a branch.
 
 ## README conventions
 
