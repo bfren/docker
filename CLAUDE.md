@@ -41,9 +41,11 @@ Release in this order: **alpine → debian → alpine-s6 → debian-s6 → downs
 
 * `debian` clones the alpine overlay at `ALPINE_BRANCH` (a `vX.Y.Z` tag), so alpine must be tagged first.
 * `debian-s6` builds `FROM debian` and clones the alpine-s6 overlay at `ALPINE_BRANCH`, so both must be released first.
-* Each image's `generate-dockerfiles.sh` pins its base with `BASE_VERSION`. A `-dev` suffix (e.g. `6.6.0-dev`) means
-  "built against an unreleased base" - change it to the released version and re-run `generate-dockerfiles.sh` before
-  releasing.
+* Each image's `generate-dockerfiles.sh` pins its base with `BASE_VERSION`. When a base is being released, set the pin
+  to the version that *will* be released, even before it is tagged, then cascade through the ecosystem in release
+  order - each image is released once its base is tagged. A `-dev` suffix (e.g. `6.6.0-dev`, "built against an
+  unreleased base") is only used during a major update across the ecosystem - change it to the released version and
+  re-run `generate-dockerfiles.sh` before releasing.
 
 ## Changelog
 
