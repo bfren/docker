@@ -94,6 +94,10 @@ Images with a `CHANGELOG.md` (`../alpine` is the reference) follow [Keep a Chang
   a bfren-bin image, the next `VERSION`). `main` is protected too, so every change goes through a branch and pull
   request. `index` has no rulesets: commit straight to `main` (commits must be signed, and force pushes are
   blocked), unless a change needs testing first - e.g. the shared workflows - which goes on a branch.
+* In an image repository, every merged pull request is a release: `auto-release` creates a release named after the PR
+  title whenever one is merged, and the release rebuilds and pushes that `VERSION`'s images. So the only PRs ever
+  merged are `vX.Y.Z` release branches (opened by `auto-pr`). A change that isn't worth a release (e.g. a README fix)
+  waits on the next release branch - never open a separate PR for it.
 
 ## README conventions
 
