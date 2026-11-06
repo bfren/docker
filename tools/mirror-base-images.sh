@@ -39,7 +39,15 @@ digest() { skopeo inspect --raw "$1" > "${MANIFEST}" 2> /dev/null || return 0 ; 
 mirror() {
   HUB="https://hub.docker.com/v2/repositories/library/$1/tags"
   DIGEST=$(curl -fsSL "${HUB}/$2" | jq -r .digest)
-  RELEASE=$(curl -fsSL "${HUB}?page_size=100&name=$3" | jq -r --arg d "${DIGEST}" '.results[] | select(.digest == $d) | .name' | grep -E "$4" | head -1 || true)
+  TAGS=$(curl -fsSL "${HUB}?page_size=100&name=$3")
+  RELEASE=$(jq -r --arg d "${DIGEST}" '.results[] | select(.digest == $d) | .name' <<< "${TAGS}" | grep -E "$4" | head -1 || true)
+  if [ -z "${RELEASE}" ] ; then
+    # Docker Hub can briefly give the floating tag and its release different digests (seen with alpine:3.21 and 3.21.10)
+    # so use the highest release and its own digest - the floating tag on Quay.io then follows that
+    RELEASE=$(jq -r '.results[].name' <<< "${TAGS}" | grep -E "$4" | sort -V | tail -1 || true)
+    DIGEST=$(jq -r --arg n "${RELEASE}" '.results[] | select(.name == $n) | .digest' <<< "${TAGS}")
+    if [ -n "${RELEASE}" ] ; then echo "No release has the digest of $1:$2 - using ${RELEASE}." >&2 ; fi
+  fi
   if [ -z "${RELEASE}" ] ; then echo "Unable to find the release tag behind $1:$2." >&2 ; exit 1 ; fi
 
   TARGET="docker://quay.io/bfren-bin/$1"
