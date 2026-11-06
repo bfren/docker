@@ -136,16 +136,19 @@ own repository, e.g. `bfren/busybox`) build with a second reusable workflow,
 [.github/workflows/build-bin.yml](../.github/workflows/build-bin.yml). It works the same way as `build.yml` - each
 platform builds on its own runner and is pushed by digest, then joined into one image - but it is much simpler:
 
-- **Run by hand** (`workflow_dispatch`), not on pushes or releases.
+- **Pushes build.** A push to any branch builds `-dev` tags, and a push to `main` (e.g. merging a branch) builds the
+  release. Pushes that only change Markdown files don't build, and the workflow can also be run by hand.
+- **Release builds are never cancelled.** On other branches a newer push cancels the running build, but on `main` it
+  waits, so a release is never left half-tagged.
 - **Quay.io only**, as `quay.io/bfren-bin/<image>` - nothing goes to Docker Hub, and there are no tests or folders.
 - **Release tags only come from `main`.** Runs on any other branch add `-dev` to every tag.
 - **Release tags never change**, because images pin them. A tag that uses `${VERSION}` (the only variable) is a
   release tag - on `main` the workflow stops before building if one already exists, so set `VERSION` to today's date
-  (`yymmdd`) before each run. Tags without it (e.g. Nushell's `alpine`) move with each build, and `-dev` tags may be
-  overwritten.
+  (`yymmdd`, or `yymmdd.2`, `.3` and so on for another release that day) before merging. Tags without it (e.g.
+  Nushell's `alpine`) move with each build, and `-dev` tags may be overwritten.
 - Every build gets the `VERSION` and `NATIVE` build arguments. `NATIVE` is `false` under QEMU - BusyBox uses it to
   skip its test suite, which QEMU cannot run reliably.
-- Platforms default to `linux/amd64`, `linux/arm64` and `linux/arm/v7`.
+- Every image is built for `linux/amd64`, `linux/arm64` and `linux/arm/v7`.
 
 To build several versions, call it from a job with a matrix - each call must have different tags. BusyBox:
 
@@ -153,7 +156,17 @@ To build several versions, call it from a job with a matrix - each call must hav
 name: build
 
 on:
+  push:
+    branches: ['**']
+    tags-ignore: ['**']
+    # docs-only pushes would rebuild the same VERSION, which main refuses
+    paths-ignore: ['**.md']
   workflow_dispatch:
+
+# on other branches a newer push cancels the running build - on main it waits, so a release is never cancelled
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref_name != 'main' }}
 
 jobs:
   build:
@@ -172,5 +185,5 @@ jobs:
       QUAY_TOKEN: ${{ secrets.QUAY_TOKEN }}
 ```
 
-With `VERSION` set to `261106`, gives `1.36.1-261106`, `1.37.0-261106` and `1.38.0-261106` (each with `-dev` when run
+With `VERSION` set to `261106`, gives `1.36.1-261106`, `1.37.0-261106` and `1.38.0-261106` (each with `-dev` when built
 from another branch).

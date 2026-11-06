@@ -2,8 +2,8 @@ name: build-bin
 
 # Reusable workflow: build and push a bfren-bin image (binaries used to build the bfren images, e.g. BusyBox).
 #
-#   Builds the Dockerfile in the repository root on each platform. amd64 and arm64 build on native runners, and
-#   anything else (e.g. arm/v7) using QEMU. Each build is pushed by digest, then one job joins the platforms into a
+#   Builds the Dockerfile in the repository root for linux/amd64 and linux/arm64 on native runners, and linux/arm/v7
+#   using QEMU. Each build is pushed by digest, then one job joins the platforms into a
 #   single multi-platform image with the tags. Quay.io only - nothing is published to Docker Hub.
 #
 #   Every build gets two build arguments: VERSION (the VERSION file) and NATIVE ('false' when built using QEMU).
@@ -28,22 +28,11 @@ on:
         required: false
         type: string
         default: ''
-      platforms:
-        description: Platforms to build, one per line
-        required: false
-        type: string
-        default: |
-          linux/amd64
-          linux/arm64
-          linux/arm/v7
       tags:
         description: Tags, one per line, using ${VERSION}
         required: true
         type: string
     secrets:
-      QUAY_USERNAME:
-        description: Defaults to the repository owner
-        required: false
       QUAY_TOKEN:
         required: true
 
@@ -60,7 +49,6 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.read.outputs.version }}
-      platforms: ${{ steps.read.outputs.platforms }}
       tags: ${{ steps.read.outputs.tags }}
       key: ${{ steps.read.outputs.key }}
     steps:
@@ -68,10 +56,9 @@ jobs:
         name: Checkout code
         uses: actions/checkout@v7
       -
-        name: Read version, platforms and tags
+        name: Read version and tags
         id: read
         env:
-          PLATFORMS: ${{ inputs.platforms }}
           TAGS: ${{ inputs.tags }}
         run: |
           # turn a list with one item per line into a JSON array, ignoring blank lines
@@ -83,7 +70,6 @@ jobs:
           echo "${tags}"
           {
             echo "version=${VERSION}"
-            echo "platforms=$(list <<< "${PLATFORMS}")"
             echo "tags=$(list <<< "${tags}")"
             echo "release=$(list <<< "${release}")"
             # names this call's digest artifacts - a matrix of calls shares one run, so they must not clash
@@ -95,7 +81,7 @@ jobs:
         uses: docker/login-action@v4
         with:
           registry: quay.io
-          username: ${{ secrets.QUAY_USERNAME || github.repository_owner }}
+          username: ${{ github.repository_owner }}
           password: ${{ secrets.QUAY_TOKEN }}
       -
         name: Check release tags are new
@@ -105,8 +91,11 @@ jobs:
           RELEASE: ${{ steps.read.outputs.release }}
         run: |
           for tag in $(jq -r '.[]' <<< "${RELEASE}") ; do
-            if docker buildx imagetools inspect "${IMAGE}:${tag}" >/dev/null 2>&1 ; then
+            # only a real 'not found' means the tag is new - any other error (e.g. a timeout) stops the run
+            if out=$(docker buildx imagetools inspect "${IMAGE}:${tag}" 2>&1) ; then
               echo "${IMAGE}:${tag} already exists - bump VERSION" ; exit 1
+            elif ! grep -q ': not found$' <<< "${out}" ; then
+              echo "${out}" ; exit 1
             fi
           done
         shell: bash
@@ -116,8 +105,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        platform: ${{ fromJSON(needs.prepare.outputs.platforms) }}
-    # amd64 and arm64 have native runners - anything else builds on amd64 using QEMU
+        platform: [ linux/amd64, linux/arm64, linux/arm/v7 ]
+    # amd64 and arm64 have native runners - arm/v7 builds on amd64 using QEMU
     runs-on: ${{ matrix.platform == 'linux/arm64' && 'ubuntu-24.04-arm' || 'ubuntu-24.04' }}
     env:
       NATIVE: ${{ matrix.platform == 'linux/amd64' || matrix.platform == 'linux/arm64' }}
@@ -137,7 +126,7 @@ jobs:
         uses: docker/login-action@v4
         with:
           registry: quay.io
-          username: ${{ secrets.QUAY_USERNAME || github.repository_owner }}
+          username: ${{ github.repository_owner }}
           password: ${{ secrets.QUAY_TOKEN }}
       -
         name: Build and push by digest
@@ -185,7 +174,7 @@ jobs:
         uses: docker/login-action@v4
         with:
           registry: quay.io
-          username: ${{ secrets.QUAY_USERNAME || github.repository_owner }}
+          username: ${{ github.repository_owner }}
           password: ${{ secrets.QUAY_TOKEN }}
       -
         name: Create multi-platform image
