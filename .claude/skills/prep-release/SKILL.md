@@ -7,13 +7,18 @@ argument-hint: <image> [<image> ...]
 # Prepare an image for release
 
 Run from `index`. Each argument is a sibling image repository (`../<image>`). Do the images in release order
-(`CLAUDE.md` - "Image dependencies and release order"), and finish one before starting the next.
+(`CLAUDE.md` - "Image dependencies and release order"). Don't wait for one image's development build before preparing
+the next - watch the builds in the background and check them in the report. An image whose base is earlier in the
+same run is blocked (step 1) until that base is tagged.
 
-The only commit this skill makes is the changelog (step 3), and the only push is that commit (step 4). Never commit or
-push anything else, and never tag or merge - leave other changes in the working tree and say what is ready. Running
-this skill is the user's explicit request to push the changelog commit, under the conditions in step 4.
+The only commit this skill makes is the changelog and README (step 3), and the only push is that commit (step 4).
+Never commit or push anything else, and never tag or merge - leave other changes in the working tree and say what is
+ready. Running this skill is the user's explicit request to push that commit, under the conditions in step 4.
 
-## 1. Find the range
+Do only what the steps say. In particular, don't check that pinned images exist (the development build fails if one
+doesn't), and don't read other repositories' history - link to their releases instead (step 2).
+
+## 1. Find the range and check the base
 
 ```bash
 cd ../<image>
@@ -29,6 +34,17 @@ A branch can have the same name as a tag (e.g. `v1.0.7`), so use `refs/tags/vPRE
 Stop and ask if the branch is not `v<VERSION>`, or if `VERSION_MAJOR` / `VERSION_MINOR` don't match `VERSION`. Check
 that the bump fits the changes (`CLAUDE.md` - "Versions"): a breaking change needs a major bump.
 
+Then check the base - it must be a released version, never a `-dev` build:
+
+* `BASE_VERSION` and `ALPINE_BRANCH` in `generate-dockerfiles.sh`. Images without one pin the base in the `Dockerfile`
+  itself: the `FROM quay.io/bfren/...` line (freshrss, ftps, nginx-webdav, samba, send, wireguard) or
+  `ARG BASE_IMAGE=` (caddy-proxy).
+* `grep -n -- '-dev' generate-dockerfiles.sh Dockerfile* */Dockerfile 2>/dev/null` must find no base pin.
+* `gh release view v<BASE_VERSION> -R bfren/docker-<base>` must find the release.
+
+If the base isn't released, the image is **blocked**: carry on with steps 2 and 3, but don't push (step 4), and test
+locally instead (step 5).
+
 ## 2. Read every change
 
 ```bash
@@ -41,7 +57,11 @@ Read the diff, not just the commit messages. The per-version `Dockerfile`s are g
 one of them only to confirm the regenerated output. Sort each change into what affects the published image (for the
 changelog) and build or development work (for the release notes only).
 
-## 3. Changelog
+For a new bfren-bin build (`BUSYBOX_BUILD`, `NU_BUILD`, `FIGLET_BUILD`, `UNBOUND_BUILD`), say which versions it
+contains and link to its release (`https://github.com/bfren/<bin>/releases/tag/v<BUILD>`), whose notes list what
+changed - don't read the bin repository's sources or history. Do the same for a base image: link to its changelog.
+
+## 3. Changelog and README
 
 Follow `CLAUDE.md` - "Changelog". Check that:
 
@@ -51,77 +71,62 @@ Follow `CLAUDE.md` - "Changelog". Check that:
 * The date is today's (`date +%F`), replacing `Unreleased`.
 * The compare link is `[<VERSION>]: https://github.com/bfren/docker-<image>/compare/vPREVIOUS...v<VERSION>`.
 
-Then commit the changelog on its own - only `CHANGELOG.md`, even if other files have changes. Don't push yet - that
-waits for the base check in step 4:
+Then the README (`CLAUDE.md` - "README conventions"). Check only the facts that step 2 changed, each against its
+source (the table there) - not the whole README:
+
+* Tag examples use `<VERSION>`, with any OS or application revision that changed.
+* Any pinned version, supported version, environment variable, default, build argument or command that the diff
+  changed.
+
+Run `python3 tools/fmt_tables.py apply ../<image>/README.md` and `check` - it must report `0 table(s) misaligned`.
+
+Then commit both together - only these two files, even if others have changes - so the README is in the release.
+Don't push yet:
 
 ```bash
-git commit -m 'Prepping CHANGELOG.md for release' -- CHANGELOG.md
+git commit -m 'Prepping for release' -- CHANGELOG.md README.md
 ```
 
-If `HEAD` is already an unpushed `Prepping CHANGELOG.md for release` commit from an earlier run, amend it instead
-(`git commit --amend --no-edit -- CHANGELOG.md`), so there is still only one. If `CHANGELOG.md` has no changes (already
-dated and complete), skip the commit and say so.
+If `HEAD` is already an unpushed `Prepping for release` (or older `Prepping CHANGELOG.md for release`) commit from an
+earlier run, amend it instead (`git commit --amend --no-edit -- CHANGELOG.md README.md`), so there is still only one.
+If neither file has changes, skip the commit and say so.
 
-## 4. Check the base image
+## 4. Push
 
-The base must be a released version, never a `-dev` build.
-
-* `BASE_VERSION` and `ALPINE_BRANCH` in `generate-dockerfiles.sh`. Images without one pin the base in the `Dockerfile`
-  itself: the `FROM quay.io/bfren/...` line (freshrss, ftps, nginx-webdav, samba, send, wireguard) or
-  `ARG BASE_IMAGE=` (caddy-proxy).
-* `grep -n -- '-dev' generate-dockerfiles.sh Dockerfile* */Dockerfile 2>/dev/null` must find no base pin.
-* The base version must be released: `gh release view v<BASE_VERSION> -R bfren/docker-<base>`. If it isn't, stop -
-  the base is released first. Don't push.
-* If a pin changes, re-run `./generate-dockerfiles.sh` and check that the generated `Dockerfile`s changed to match. If
-  the changelog's base version was wrong, fix it and amend the changelog commit (it isn't pushed yet).
-
-Then push the changelog commit - only now, after the base check, so the build tests the image you are releasing:
+Skip this step if the image is blocked (step 1). Otherwise push the commit, so the development build tests the image
+you are releasing:
 
 ```bash
 git status -sb   # must show only "[ahead 1]" - no other unpushed commits, no modified or untracked files
 git push
 ```
 
-Push only when the changelog commit is the only unpushed commit and the working tree is clean - `git push` sends every
-unpushed commit, and a build without uncommitted changes (e.g. a base pin changed above) would test the wrong image. If
-anything else is unpushed or uncommitted, don't push: say what is in the way, and that it needs committing and pushing
-by the user. The changelog commit can be from this run or an earlier one - push it either way. If nothing is
-unpushed, there is nothing to push.
+Push only when the commit from step 3 is the only unpushed commit and the working tree is clean - `git push` sends
+every unpushed commit, and a build without uncommitted changes would test the wrong image. If anything else is
+unpushed or uncommitted, don't push: say what is in the way, and that it needs committing and pushing by the user. If
+nothing is unpushed, there is nothing to push.
 
-After a push, start waiting for the development build in the background (see step 6) and carry on with step 5.
+After a push, the push cancels any running build for the branch (`cancel-in-progress`) and starts one for `HEAD`.
+Find it (it can take a few seconds to appear) and watch it in the background, then move on - to step 6, or to the
+next image:
 
-## 5. README
+```bash
+gh run list -R bfren/docker-<image> --branch v<VERSION> --commit $(git rev-parse HEAD) --limit 1 --json databaseId,status
+gh run watch <databaseId> -R bfren/docker-<image> --exit-status   # in the background
+```
 
-Follow `CLAUDE.md` - "README conventions", checking each fact against its source (the table there). Look in particular
-for what step 2 changed:
+## 5. Test
 
-* Tag examples use `<VERSION>`, and the supported-versions table matches the per-version directories.
-* Environment variables, defaults, build arguments and commands match the code.
-* Pinned versions (base, BusyBox, Nushell, S6, application) match `generate-dockerfiles.sh` or the `Dockerfile`.
+The development build for the current `HEAD` is the test - it runs the image's tests on each native platform, so don't
+also run them locally. It must pass, and a build for an earlier commit doesn't count. Check the background watch from
+step 4 in the report.
 
-Then run `python3 tools/fmt_tables.py apply ../<image>/README.md` and `check` - it must report `0 table(s)
-misaligned`. Also update the `index` `README.md` if any version it lists for this image changed (`--shared`).
+Only when the image is blocked (nothing was pushed, so nothing else tests it), run `./test.nu --all` in the image
+repository (just `./test.nu` for an image with no per-version folders) - it must pass.
 
-## 6. Test
+## 6. Release notes
 
-* `./test.nu --all` in the image repository (just `./test.nu` for an image with no per-version folders) - it must
-  pass.
-* The development build for the current `HEAD` must pass - a build for an earlier commit doesn't count. If step 4
-  pushed, the push cancels any running build for the branch (`cancel-in-progress`) and starts one for `HEAD`. Find it
-  (it can take a few seconds to appear) and wait for it:
-
-  ```bash
-  gh run list -R bfren/docker-<image> --branch v<VERSION> --commit $(git rev-parse HEAD) --limit 1 --json databaseId,status
-  gh run watch <databaseId> -R bfren/docker-<image> --exit-status
-  ```
-
-  The watch was started in the background in step 4 - check its result here. If `HEAD` was not pushed (step 4
-  stopped), say so - it needs pushing and a passing build before tagging.
-
-## 7. Release notes
-
-These become the squash-merge message, so write plain text that reads well without Markdown rendering. Use the style of
-the earlier releases (e.g. `git log -1 --format=%B v3.5.0` in `../alpine`):
+These become the squash-merge message, so write plain text that reads well without Markdown rendering:
 
 ```plain
 v<VERSION>
@@ -146,13 +151,14 @@ Full changelog: https://github.com/bfren/docker-<image>/blob/v<VERSION>/CHANGELO
 * The anchor is the heading with the brackets and dots removed and spaces turned into hyphens:
   `## [4.0.0] - 2026-11-05` gives `#400---2026-11-05`.
 
-## 8. Report
+## 7. Report
 
-Give the release notes in a code block, then list:
+Wait for any development builds still running, then give each image's release notes in a code block, and list:
 
 * what was changed (files, and what was added to the changelog or README)
 * every check that failed or could not be run, and why
-* whether the changelog commit was pushed, and if not, why
+* whether the commit was pushed, and if not, why
 * what's left before tagging - e.g. the base not released yet, or the dev build failed
 
-Don't update `PROJECT_STATE.md` - `/close-session` does that once, at the end of the session.
+Don't update `PROJECT_STATE.md` or the `index` `README.md` - `/close-session` does both once, at the end of the
+session.
