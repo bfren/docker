@@ -146,6 +146,10 @@ platform builds on its own runner and is pushed by digest, then joined into one 
   release tag - on `main` the workflow stops before building if one already exists, so set `VERSION` to today's date
   (`yymmdd`, or `yymmdd.2`, `.3` and so on for another release that day) before merging. Tags without it (e.g.
   Nushell's `alpine`) move with each build, and `-dev` tags may be overwritten.
+- **Each release is also a GitHub release**, `v<VERSION>`, created on the commit that was built, with notes generated
+  from the merged pull requests. Callers must grant `contents: write` (see the example). Every image is labelled
+  with that commit (`org.opencontainers.image.revision`), so `docker buildx imagetools inspect` shows where it came
+  from.
 - Every build gets the `VERSION` and `NATIVE` build arguments. `NATIVE` is `false` under QEMU - BusyBox uses it to
   skip its test suite, which QEMU cannot run reliably.
 - Every image is built for `linux/amd64`, `linux/arm64` and `linux/arm/v7`.
@@ -174,6 +178,9 @@ jobs:
       fail-fast: false
       matrix:
         busybox: [ "1.36.1", "1.37.0", "1.38.0" ]
+    permissions:
+      # to create the release
+      contents: write
     uses: bfren/docker/.github/workflows/build-bin.yml@main
     with:
       image: busybox
