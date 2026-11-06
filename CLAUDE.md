@@ -89,10 +89,11 @@ Images with a `CHANGELOG.md` (`../alpine` is the reference) follow [Keep a Chang
 * Major: breaking changes. Minor: new features or behaviour. Revision: fixes, and rebuilds for upstream updates (e.g. a
   new base image or BusyBox version with no behaviour change).
 * Every image and bfren-bin repository has a "release tags" ruleset: `v*` tags can't be deleted or moved, by anyone. A
-  broken release is never deleted and re-made under the same version - fix it and release the next revision (or, for
-  a bfren-bin image, the next `VERSION`). `main` is protected too, so every change goes through a branch and pull
-  request. `index` has no rulesets: commit straight to `main` (commits must be signed, and force pushes are
-  blocked), unless a change needs testing first - e.g. the shared workflows - which goes on a branch.
+  broken release is never deleted and re-made under the same version - fix it and release the next revision (or, for a
+  bfren-bin image, the next `VERSION`). `main` is protected too, so every change goes through a branch and pull
+  request. Image repositories allow squash merges only; bfren-bin repositories also allow merge commits. `index` has
+  no rulesets: commit straight to `main` (commits must be signed, and force pushes are blocked), unless a change needs
+  testing first - e.g. the shared workflows - which goes on a branch.
 * In an image repository, every merged pull request is a release: `auto-release` creates a release named after the PR
   title whenever one is merged, and the release rebuilds and pushes that `VERSION`'s images. So the only PRs ever
   merged are `vX.Y.Z` release branches (opened by `auto-pr`). A change that isn't worth a release (e.g. a README fix)
