@@ -126,11 +126,10 @@ repository (just `./test.nu` for an image with no per-version folders) - it must
 
 ## 6. Release notes
 
-These become the squash-merge message, so write plain text that reads well without Markdown rendering:
+These become the squash-merge message, so write plain text that reads well without Markdown rendering. Don't start
+with the version - GitHub adds the PR title (`vX.Y.Z (#N)`) as the first line:
 
 ```plain
-v<VERSION>
-
 Major updates
 * <Verb>ing ...
 
