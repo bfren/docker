@@ -142,7 +142,8 @@ Rules:
 
 ## Code conventions
 
-* Nushell 0.116+, functional style: small composable functions.
+* Nushell 0.117+, functional style: small composable functions. `hide-env` can't hide `CURRENT_FILE`, `FILE_PWD` or
+  `PWD` (it errors, even with `--ignore-errors`).
 * Keep options meant for debugging (e.g. `handle --debug`, `dump --always`, `ch --debug`) even when nothing calls
   them - don't remove them as unused.
 * Run externals through `bf handle` (e.g. `{ ^cmd } | bf handle --code-only`, `--ignore-error`), not raw `complete`.
