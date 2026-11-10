@@ -132,9 +132,12 @@ These become the squash-merge message, so write plain text that reads well witho
 v<VERSION>
 
 Major updates
-* <Verb>ing ... (breaking changes and the most important ones)
+* <Verb>ing ...
 
 Minor updates
+* <Verb>ing ...
+
+Documentation updates
 * <Verb>ing ...
 
 Build updates
@@ -146,6 +149,13 @@ Development updates
 Full changelog: https://github.com/bfren/docker-<image>/blob/v<VERSION>/CHANGELOG.md#<anchor>
 ```
 
+* Sort each change by what it touches:
+  * **Major / Minor updates** - the image itself (overlay, scripts, packages, base and bfren-bin versions). Major is
+    for breaking changes and the most important ones, Minor for the rest - including internal changes to the image's
+    own scripts.
+  * **Documentation updates** - the README, comments and other documentation.
+  * **Build updates** - workflow files, tags and how the image is built and published.
+  * **Development updates** - the development environment: workspace files, build tools and helper scripts.
 * Every bullet starts with an `-ing` verb, has no full stop, and is one short line. Leave out empty sections.
 * Unlike the changelog, include build and development changes, but not CI experiments, cache tests or branch pointers.
 * The anchor is the heading with the brackets and dots removed and spaces turned into hyphens:
