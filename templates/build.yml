@@ -1,5 +1,5 @@
 # Copy to <image>/.github/workflows/build.yml - see README.md in this folder.
-# It replaces dev.yml and publish.yml: branch pushes build '-dev' images, and published releases build release images.
+# Branch pushes build '-dev' images, and published releases build release images.
 
 name: build
 

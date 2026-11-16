@@ -2,7 +2,7 @@
 
 Every image builds with the reusable workflow in [.github/workflows/build.yml](../.github/workflows/build.yml).
 Each image has one small workflow that calls it - copy [build.yml](build.yml) to
-`<image>/.github/workflows/build.yml` and fill it in. It replaces `dev.yml` and `publish.yml`.
+`<image>/.github/workflows/build.yml` and fill it in.
 
 ## What it does
 
@@ -119,11 +119,11 @@ file. The WordPress version comes from `overlay/tmp/WP_MINOR` and `WP_VERSION` i
 For `php8.4` gives `php8.4`, `php8.4-7`, `php8.4-7.2`, `php8.4-7.2.1`, `php8.4-wp7.1`, `php8.4-wp7.1-7.2.1`,
 `php8.4-wp7.1.3`, `php8.4-wp7.1.3-7.2.1` and `php8.4.26`.
 
-## Moving an image to the workflow
+## Adding an image
 
-1. Copy [build.yml](build.yml) to `<image>/.github/workflows/build.yml`, and copy the tags from the image's
-   `publish.yml`, changing `${{ steps.x.outputs.contents }}` to `${X}` (the file name) and `${{ matrix.x }}` to `${FOLDER}`.
-2. Delete `dev.yml` and `publish.yml`, and point the README's workflow badge at `build.yml`.
+1. Copy [build.yml](build.yml) to `<image>/.github/workflows/build.yml` and fill in the image, folders, platforms and
+   tags.
+2. Point the README's workflow badge at `build.yml`.
 3. Push a branch and check the `-dev` tags in the run's merge jobs.
 
 The repository needs the `DOCKERHUB_USERNAME`, `DOCKERHUB_TOKEN` and `QUAY_TOKEN` secrets. Quay.io logs in as the

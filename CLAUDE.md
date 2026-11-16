@@ -84,8 +84,7 @@ Images with a `CHANGELOG.md` (`../alpine` is the reference) follow [Keep a Chang
   with `index/.github/workflows/build-bin.yml` instead - see "bfren-bin images" in `index/templates/README.md`.
   Pushes to a branch build `-dev` tags and merging into `main` builds the release. Release tags are never
   overwritten, so bump `VERSION` before merging.
-* Every image has moved - none has `dev.yml` or `publish.yml` any more. A new image copies
-  `index/templates/build.yml` and follows "Moving an image to the workflow" in `index/templates/README.md`.
+* A new image copies `index/templates/build.yml` and follows "Adding an image" in `index/templates/README.md`.
 * Major: breaking changes. Minor: new features or behaviour. Revision: fixes, and rebuilds for upstream updates (e.g. a
   new base image or BusyBox version with no behaviour change).
 * Every image and bfren-bin repository has a "release tags" ruleset: `v*` tags can't be deleted or moved, by anyone. A
@@ -131,7 +130,7 @@ Rules:
   | ----------------------------------- | ------------------------------------------------------------------- |
   | Health-check timing                 | `HEALTHCHECK` line in `Dockerfile.esh`                              |
   | Environment variables and defaults  | `ENV` block in `Dockerfile.esh`, and `overlay/etc/bf/init.d/*.nu`   |
-  | Published tags and platforms        | `.github/workflows/build.yml`, or `publish.yml` if not yet moved    |
+  | Published tags and platforms        | `.github/workflows/build.yml`                                       |
   | Supported OS / application versions | `generate-dockerfiles.sh` and the per-version directories           |
   | Base image and pinned versions      | `generate-dockerfiles.sh` (`BASE_VERSION`, `ALPINE_BRANCH`, …)      |
   | Commands and modules                | `overlay/etc/nu/scripts/<module>/` and `overlay/usr/bin/bf/`        |

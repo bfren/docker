@@ -43,7 +43,8 @@ for DIR in "${PARENT_DIR}"/*/ ; do
         elif [[ $(git -C "${DIR}" for-each-ref --format='%(upstream:track)' "refs/heads/${BRANCH}") == "[gone]" ]] ; then
             # squash-merged or abandoned - print the commit so it can be restored
             SHA=$(git -C "${DIR}" rev-parse --short "refs/heads/${BRANCH}")
-            git -C "${DIR}" branch -D "${BRANCH}" > /dev/null
+            # git refuses to delete a branch that is checked out in a worktree - keep it and carry on
+            git -C "${DIR}" branch -D "${BRANCH}" > /dev/null 2>&1 || { echo "${NAME} .. kept ${BRANCH} - in use by a worktree" ; continue ; }
             echo "${NAME} .. deleted branch ${BRANCH} - gone on GitHub, restore with: git branch ${BRANCH} ${SHA}"
         else
             echo "${NAME} .. kept ${BRANCH} - not merged"
