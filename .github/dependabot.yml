@@ -1,0 +1,15 @@
+# Keep the actions pinned in this repository's workflows up to date - one pull request a week with every update, which
+# changes the commit hash and the version comment together. A release is only proposed once it is 7 days old, so a
+# hijacked release is likely to be found and pulled before it reaches a pull request.
+
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 7
+    groups:
+      actions:
+        patterns: ['*']
