@@ -11,9 +11,25 @@ during it. Run from `index`.
 ## 1. Gather
 
 Work out the current state from this conversation, then check it against the repositories rather than trusting
-earlier messages, which may be out of date:
+earlier messages, which may be out of date.
 
-* For each image touched this session: `git -C ../<image> status -sb` (uncommitted or unpushed work), whether its
+Earlier sessions may have ended without this skill, so also find everything since `PROJECT_STATE.md` was last
+committed, in every image - not only those this conversation touched:
+
+```bash
+SINCE=$(git log -1 --format=%cI -- PROJECT_STATE.md)
+for i in $(grep '"name"' docker-index.code-workspace | sed 's/.*"name": *"//; s/".*//' | grep -v '^index$' | grep -v '^bin/'); do
+  echo "== $i"; git -C ../$i fetch --tags --quiet
+  git -C ../$i log --all --since="$SINCE" --format='%h %cs %D %s'
+  gh release list -R bfren/docker-$i --limit 5 --json tagName,publishedAt -q ".[] | select(.publishedAt > \"$SINCE\") | .tagName"
+done
+git log --since="$SINCE" --format='%h %cs %s'   # index itself
+```
+
+Treat what this finds like work done this session - releases made, branches in progress, index changes - and include
+it in steps 2 and 3. If it's unclear why something was done, say so rather than guessing a reason.
+
+* For each image touched this session or found above: `git -C ../<image> status -sb` (uncommitted or unpushed work), whether its
   release exists (`gh release view v<VERSION> -R bfren/docker-<image>`), and the result of its latest development
   build if it was waiting on one.
 * Read the current `PROJECT_STATE.md`: its Next tasks and Open questions carry over unless this session finished or
@@ -21,7 +37,7 @@ earlier messages, which may be out of date:
 
 ## 2. Update the index README
 
-For each image released or prepared for release this session, check the versions its row in `README.md` lists (OS,
+For each image released or prepared for release since `PROJECT_STATE.md` was last updated (step 1), check the versions its row in `README.md` lists (OS,
 application, BusyBox, Nushell, S6) against its source (`CLAUDE.md` - "README conventions", the table there), and fix
 any that changed. Leave the other rows alone.
 
@@ -32,7 +48,8 @@ If nothing changed, skip this step.
 
 Follow `CLAUDE.md` - "Project state". Write the file once, in its final form:
 
-* **Last session (YYYY-MM-DD)** - replace the section. Say what was done and what was decided, with the reasoning.
+* **Last session (YYYY-MM-DD)** - replace the section. Say what was done and what was decided, with the reasoning,
+  including anything step 1 found from sessions that weren't closed.
   Group images in the same state on one line (e.g. "Released a, b and c", "Ready to tag: d and e") rather than one
   bullet per image, and keep only what the next session needs: commit hashes and build numbers only for work still
   waiting on something.
