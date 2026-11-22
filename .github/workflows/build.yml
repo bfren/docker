@@ -85,6 +85,16 @@ jobs:
         name: Checkout code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       -
+        name: Check compose examples
+        run: |
+          # fail if any sample compose file is not valid - variables aren't filled in, as their .env files aren't in the repository
+          shopt -s nullglob
+          for f in docker-compose*.yml compose/*.yml; do
+            echo "Checking ${f}"
+            docker compose -f "${f}" config --no-interpolate --quiet
+          done
+        shell: bash
+      -
         name: Read version, folders and platforms
         id: read
         env:
