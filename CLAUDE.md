@@ -138,6 +138,11 @@ Rules:
 * If a claim can't be verified from the code (e.g. a package's behaviour on an older Alpine), say so or leave it out.
 * British English, short sentences, hyphens (` - `) rather than em dashes.
 * Compose examples use the list syntax for `environment` (`- KEY=value`), without quotes around values.
+  * A compose Quickstart is also the image's `docker-compose.yml` - keep the two identical, with a link to the file
+    under the example. Passwords go in `.env`, and images are `quay.io/bfren/...`. `build.yml` checks every
+    `docker-compose*.yml` and `compose/*.yml` before building.
+  * Never show a `:ro` mount under a path in the image's `ch.d` - the start-up `chown` / `chmod` fails on a read-only
+    file and stops the container.
 
 ## Code conventions
 
