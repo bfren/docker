@@ -2,10 +2,33 @@
 
 ## Contents
 
+- [Getting Started](#getting-started)
 - [Base Images](#base-images)
 - [Applications](#applications)
 - [Licence](#licence)
 - [Copyright](#copyright)
+
+## Getting Started
+
+### Running an application
+
+Choose it from [Applications](#applications) and follow the Quickstart in its README - each one has a `docker-compose.yml` you can copy.
+
+Web applications are designed to run behind [Caddy Proxy](https://github.com/bfren/docker-caddy-proxy), which gets their HTTPS certificates. The [Send Quickstart](https://github.com/bfren/docker-send#quickstart) is a complete example: the proxy, an application and Redis in one compose file.
+
+### Building your own image
+
+Use one of the base images as your `FROM` line - each README has a Quickstart that builds a working image:
+
+| You are building                                                                 | Use                                                                                                            |
+| -------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| An image that runs a single command or tool                                      | [Alpine](https://github.com/bfren/docker-alpine)                                                               |
+| A long-running service, with start-up scripts, scheduled tasks and health checks | [Alpine S6](https://github.com/bfren/docker-alpine-s6)                                                         |
+| Either of those, for software that needs glibc or a Debian package               | [Debian](https://github.com/bfren/docker-debian) or [Debian S6](https://github.com/bfren/docker-debian-s6)     |
+
+### Choosing a tag
+
+Images are published to Quay.io (`quay.io/bfren/<image>`) and Docker Hub (`bfren/<image>`). Use a `MINOR` tag (e.g. `quay.io/bfren/caddy-proxy:2.0`) to get fixes without breaking changes, and read an image's changelog before moving to a new `MAJOR` version. Each README lists its tags.
 
 ## Base Images
 
