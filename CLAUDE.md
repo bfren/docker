@@ -18,21 +18,17 @@ start of every session. Don't update it during a session - at the end of any ses
 * **Next** - tasks in order. Keep unfinished ones, remove finished ones, add new ones.
 * **Open questions** - remove them once answered.
 
-Decisions and lessons learnt don't go in `PROJECT_STATE.md` - they go in `DECISIONS.md`, also imported below and also
-updated only by `/close-session`:
+Decisions and lessons learnt don't go in `PROJECT_STATE.md`. Each goes where someone will see it when it matters:
 
-* **Decisions** - choices made, with the reasoning, that a later session could otherwise undo. Remove one once it no
-  longer applies (e.g. the pin or workaround it explains has gone). One that becomes a lasting convention moves into
-  this file (`CLAUDE.md`) instead.
-* **Ruled out** - approaches that were tried or seriously considered and dropped, each with why, so a later session
-  doesn't try them again. Remove one once the code it concerns has changed so the reason no longer holds.
+* **About specific code** (a pin, a workaround, an approach tried and dropped) - a comment at that code, saying what
+  and why. It is read by whoever is about to change the code, and goes when the code does.
+* **A lasting rule across the ecosystem** - this file (`CLAUDE.md`).
+* **Needed by a pending task** - that task's line under **Next**, so it goes when the task does.
 
-The skill then commits and pushes `PROJECT_STATE.md` and `DECISIONS.md` (only those files), so the next session - on
-any machine - starts from them.
+If none fits, it isn't worth keeping. The skill then commits and pushes `PROJECT_STATE.md` (only that file), so the
+next session - on any machine - starts from it.
 
 @PROJECT_STATE.md
-
-@DECISIONS.md
 
 ## Image dependencies and release order
 
@@ -160,6 +156,8 @@ Rules:
 * Keep options meant for debugging (e.g. `handle --debug`, `dump --always`, `ch --debug`) even when nothing calls
   them - don't remove them as unused.
 * Run externals through `bf handle` (e.g. `{ ^cmd } | bf handle --code-only`, `--ignore-error`), not raw `complete`.
+* When you make a choice someone might undo, or drop an approach after trying it, comment the reason at the code it
+  concerns (e.g. why a package is pinned to a revision, or why a restore deletes `/data` rather than moving it).
 * Remember that a failing external (non-zero exit) aborts a Nushell script - `pidof`, `grep` etc. exit 1 when they find
   nothing.
 * Tests live in `overlay/etc/nu/scripts/tests/*.nu`, exported from `tests/mod.nu`, named `<function>__<behaviour>`.
