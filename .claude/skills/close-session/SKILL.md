@@ -55,6 +55,11 @@ Follow `CLAUDE.md` - "Project state". Write the file once, in its final form:
   waiting on something.
 * **Decisions** - keep one only while an unfinished task depends on it. A lasting convention moves into `CLAUDE.md`.
 * **Next** - unfinished tasks in order, with exactly what each still needs.
+* **Ruled out** - carry over existing entries, and add each approach this session tried or seriously considered and
+  dropped (a reverted commit, a fix that didn't work, an option rejected after testing): one line naming the image or
+  area, what was tried and why it was dropped. A rejected approach recorded under Decisions belongs here instead.
+  Remove an entry once the code it concerns has changed so the reason no longer holds. One that applies across the
+  ecosystem whatever the code does moves into `CLAUDE.md`.
 * **Open questions** - add new ones, remove answered ones. Only claims checked against the code or a command.
 
 Lines wrap at 120 characters.

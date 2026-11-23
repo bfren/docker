@@ -17,6 +17,8 @@ start of every session. Don't update it during a session - at the end of any ses
 * **Last session** - what was done and the decisions made, with the reasoning. Replace this section each time; don't
   add to it.
 * **Next** - tasks in order. Keep unfinished ones, remove finished ones, add new ones.
+* **Ruled out** - approaches that were tried or seriously considered and dropped, each with why, so a later session
+  doesn't try them again. Remove one once the code it concerns has changed so the reason no longer holds.
 * **Open questions** - remove them once answered.
 
 Keep an older decision only while an unfinished task depends on it. A decision that becomes a lasting convention moves
