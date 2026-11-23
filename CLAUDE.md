@@ -14,18 +14,25 @@ clean `main` branches). The image list comes from `docker-index.code-workspace` 
 start of every session. Don't update it during a session - at the end of any session that changed code or decisions
 (in `index` or any image), the user runs `/close-session`, which rewrites it once:
 
-* **Last session** - what was done and the decisions made, with the reasoning. Replace this section each time; don't
-  add to it.
+* **Last session** - what was done. Replace this section each time; don't add to it.
 * **Next** - tasks in order. Keep unfinished ones, remove finished ones, add new ones.
-* **Ruled out** - approaches that were tried or seriously considered and dropped, each with why, so a later session
-  doesn't try them again. Remove one once the code it concerns has changed so the reason no longer holds.
 * **Open questions** - remove them once answered.
 
-Keep an older decision only while an unfinished task depends on it. A decision that becomes a lasting convention moves
-into this file (`CLAUDE.md`) instead. The skill then commits and pushes `PROJECT_STATE.md` (only that file), so the
-next session - on any machine - starts from it.
+Decisions and lessons learnt don't go in `PROJECT_STATE.md` - they go in `DECISIONS.md`, also imported below and also
+updated only by `/close-session`:
+
+* **Decisions** - choices made, with the reasoning, that a later session could otherwise undo. Remove one once it no
+  longer applies (e.g. the pin or workaround it explains has gone). One that becomes a lasting convention moves into
+  this file (`CLAUDE.md`) instead.
+* **Ruled out** - approaches that were tried or seriously considered and dropped, each with why, so a later session
+  doesn't try them again. Remove one once the code it concerns has changed so the reason no longer holds.
+
+The skill then commits and pushes `PROJECT_STATE.md` and `DECISIONS.md` (only those files), so the next session - on
+any machine - starts from them.
 
 @PROJECT_STATE.md
+
+@DECISIONS.md
 
 ## Image dependencies and release order
 
