@@ -284,21 +284,3 @@ jobs:
           docker buildx imagetools create $(printf -- "-t ${IMAGE}:%s " $(< "${RUNNER_TEMP}/tags")) \
             $(printf "${SOURCE}@sha256:%s " *)
         shell: bash
-
-  # one check whose name does not change, for the ruleset to require (as 'build / complete') - the other jobs are named
-  # after their folder and platform, so requiring them would mean editing the ruleset whenever those change
-  complete:
-    if: always()
-    needs: [prepare, execute, merge]
-    runs-on: ubuntu-latest
-    steps:
-      -
-        name: Check every job passed
-        # each result is 'success' only if every job in its matrix succeeded
-        env:
-          RESULTS: ${{ needs.prepare.result }} ${{ needs.execute.result }} ${{ needs.merge.result }}
-        run: |
-          for RESULT in ${RESULTS} ; do
-            [ "${RESULT}" = "success" ] || { echo "The build finished with results: ${RESULTS}." ; exit 1 ; }
-          done
-        shell: bash
