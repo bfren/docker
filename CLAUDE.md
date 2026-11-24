@@ -105,6 +105,8 @@ Images with a `CHANGELOG.md` (`../alpine` is the reference) follow [Keep a Chang
   creates (that got bfren/nushell#7 in), and should sign a squash commit the same way, though that is unconfirmed.
   Otherwise re-sign them locally (`git rebase --exec 'git commit --amend --no-edit -S' origin/main`) and force-push the
   branch.
+  Recreating them through the GitHub API (e.g. `push_files`) doesn't help: those commits came out unsigned too, and
+  lost `run.sh`'s executable bit.
 * In an image repository, every merged pull request is a release: `auto-release` creates a release named after the PR
   title whenever one is merged, and the release rebuilds and pushes that `VERSION`'s images. So the only PRs ever
   merged are `vX.Y.Z` release branches (opened by `auto-pr`). A change that isn't worth a release (e.g. a README fix)
