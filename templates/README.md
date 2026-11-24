@@ -128,6 +128,9 @@ For `php8.4` gives `php8.4`, `php8.4-7`, `php8.4-7.2`, `php8.4-7.2.1`, `php8.4-w
    tags.
 2. Point the README's workflow badge at `build.yml`.
 3. Push a branch and check the `-dev` tags in the run's merge jobs.
+4. In the `main` ruleset, require the `build / complete` status check (it appears once the workflow has run). It
+   passes only when every job has, and its name never changes - the other jobs are named after their folder and
+   platform, so requiring those means editing the ruleset whenever they change.
 
 The repository needs the `DOCKERHUB_USERNAME`, `DOCKERHUB_TOKEN` and `QUAY_TOKEN` secrets. Quay.io logs in as the
 repository owner (`bfren`), unless a `QUAY_USERNAME` secret is passed as well.
@@ -193,7 +196,23 @@ jobs:
         ${{ matrix.busybox }}-${VERSION}
     secrets:
       QUAY_TOKEN: ${{ secrets.QUAY_TOKEN }}
+
+  # one check whose name does not change, for the ruleset to require - the matrix jobs are named after their versions
+  build-complete:
+    if: always()
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      -
+        name: Check every build passed
+        # needs.build.result is 'success' only if every job in the matrix succeeded
+        run: test "${RESULT}" = "success" || { echo "The build matrix finished with result '${RESULT}'." ; exit 1 ; }
+        env:
+          RESULT: ${{ needs.build.result }}
 ```
+
+The `main` ruleset requires only the `build-complete` check. The matrix jobs are named after their versions (e.g.
+`build (1.37.0) / merge`), so requiring those would mean editing the ruleset whenever a version is added or removed.
 
 With `VERSION` set to `261106`, gives `1.36.1-261106`, `1.37.0-261106` and `1.38.0-261106` (each with `-dev` when built
 from another branch).
