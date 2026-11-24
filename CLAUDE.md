@@ -98,9 +98,8 @@ Images with a `CHANGELOG.md` (`../alpine` is the reference) follow [Keep a Chang
   request. Image repositories allow squash merges only; bfren-bin repositories also allow merge commits. `index` has
   no rulesets: commit straight to `main` (commits must be signed, and force pushes are blocked), unless a change needs
   testing first - e.g. the shared workflows - which goes on a branch.
-* bfren-bin rulesets require only the `build-complete` check, never the matrix jobs, whose names change with the
-  versions. Image rulesets require the build jobs by name, so update them by hand when an image's folders or
-  platforms change.
+* Rulesets require one status check whose name never changes - `build / complete` in image repositories and
+  `build-complete` in bfren-bin repositories - never the matrix jobs, whose names change with the versions and folders.
 * Commits made in a Claude cloud session are signed with the session's own key, so GitHub shows them as unverified and
   they can't be pushed to `index`'s `main`. A pull request can still merge them: GitHub signs the merge commit it
   creates (that got bfren/nushell#7 in), and should sign a squash commit the same way, though that is unconfirmed.

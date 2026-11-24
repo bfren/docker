@@ -128,6 +128,9 @@ For `php8.4` gives `php8.4`, `php8.4-7`, `php8.4-7.2`, `php8.4-7.2.1`, `php8.4-w
    tags.
 2. Point the README's workflow badge at `build.yml`.
 3. Push a branch and check the `-dev` tags in the run's merge jobs.
+4. In the `main` ruleset, require the `build / complete` status check (it appears once the workflow has run). It
+   passes only when every job has, and its name never changes - the other jobs are named after their folder and
+   platform, so requiring those means editing the ruleset whenever they change.
 
 The repository needs the `DOCKERHUB_USERNAME`, `DOCKERHUB_TOKEN` and `QUAY_TOKEN` secrets. Quay.io logs in as the
 repository owner (`bfren`), unless a `QUAY_USERNAME` secret is passed as well.
