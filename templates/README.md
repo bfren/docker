@@ -163,7 +163,7 @@ platform builds on its own runner and is pushed by digest, then joined into one 
 To build several versions, call it from a job with a matrix - each call must have different tags. BusyBox:
 
 ```yaml
-name: build
+name: publish
 
 on:
   push:
