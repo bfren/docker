@@ -1,7 +1,7 @@
 # Copy to <image>/.github/workflows/build.yml - see README.md in this folder.
 # Branch pushes build '-dev' images, and published releases build release images.
 
-name: build
+name: publish
 
 on:
   push:
